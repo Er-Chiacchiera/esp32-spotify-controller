@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Home e giorni 07 · Ascolti con la barra nuova</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./ui.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="scr">
+  <nav class="rail v2" aria-label="Navigazione">
+    <button class="np" aria-label="Apri Now playing"><div class="cv v2"></div></button>
+    <button class="pp" aria-label="Pausa"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf04c;</i></button>
+    <button class="nx" aria-label="Brano successivo"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf051;</i></button>
+    <span class="sp"></span>
+    <button class="it" style="top: 200px" aria-label="Home"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf015;</i></button>
+    <button class="it on" style="top: 256px" aria-label="Ascolti"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf025;</i></button>
+    <button class="it" style="top: 312px" aria-label="Libreria"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf02d;</i></button>
+    <button class="it" style="top: 368px" aria-label="Cerca"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf002;</i></button>
+    <button class="it" style="top: 424px" aria-label="Dispositivi"><i class="fa" style="color: #1DB954; font-size: 28px; height: 28px" aria-hidden="true">&#xf108;</i></button>
+  </nav>
+
+
+  <div class="shl s20" style="top: 15px">Ascoltati di recente</div>
+  <button class="more" style="left: 680px; top: 0px">Tutti<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+
+  <button class="rt" style="left: 112px; top: 56px"><div class="cv v2"></div><span class="tt m16 d1 tg">Tecno house</span><span class="st m16 t3 d1">Playlist</span></button>
+  <button class="rt" style="left: 283px; top: 56px"><div class="cv v1"></div><span class="tt m16 d1">Relapse: Refill</span><span class="st m16 t3 d1">Album · Eminem</span></button>
+  <button class="rt" style="left: 454px; top: 56px"><div class="cv v6"></div><span class="tt m16 d1">Stardust</span><span class="st m16 t3 d1">Album · Yung Lean</span></button>
+  <button class="rt" style="left: 626px; top: 56px"><div class="cv v8"></div><span class="tt m16 d1">Paris</span><span class="st m16 t3 d1">Brano · Kungs</span></button>
+
+  <div class="shl s20" style="top: 297px">Artisti più ascoltati <span class="m16 t3">· 4 settimane</span></div>
+  <button class="more" style="left: 680px; top: 282px">Tutti<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+
+  <button class="ac" style="left: 112px; top: 334px"><div class="cv rd v1"></div><span class="tt m16 d1">Eminem</span></button>
+  <button class="ac" style="left: 245px; top: 334px"><div class="cv rd v6"></div><span class="tt m16 d1">Yung Lean</span></button>
+  <button class="ac" style="left: 378px; top: 334px"><div class="cv rd v8"></div><span class="tt m16 d1">Kungs</span></button>
+  <button class="ac" style="left: 511px; top: 334px"><div class="cv rd v7"></div><span class="tt m16 d1">Klangkarussell</span></button>
+  <button class="ac" style="left: 644px; top: 334px"><div class="cv rd v4"></div><span class="tt m16 d1">Salmo</span></button>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":800,"height":480}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

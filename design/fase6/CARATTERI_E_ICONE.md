@@ -129,3 +129,10 @@ Spazio occupato dal firmware: da 2 105 518 a 2 155 950 byte (+49 KB, 68% della p
 | `moon_images.c` (nuovo) | le 8 fasi della luna a 64 e 20 px, `LV_IMG_CF_TRUE_COLOR_ALPHA`, generate da `strumenti/genera_luna.py` con la geometria del §6 (`MOON_64[fase]`, `MOON_20[fase]`) |
 
 Le immagini della luna occupano 108 KB e non 16: 8 fasi a 64×64 con trasparenza sono già 98 KB. Firmware da 2 166 082 a 2 289 406 byte (72% della partizione).
+
+## 5. Home e giorni (aggiunto il 5 novembre 2026, `design/home_giorni/SPEC_HOME_GIORNI.md` §9)
+
+| File | Contenuto |
+|---|---|
+| `font_ic_28` | + cuffie `0xF025` (`IC_HEADPHONES`), ingranaggio `0xF013` (`IC_COG`), chevron-right `0xF054`, wifi `0xF1EB`, info-circle `0xF05A` (`IC_INFO`) |
+| `font_ic_20` | + cuffie `0xF025` |

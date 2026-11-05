@@ -9,7 +9,7 @@
 // Ogni 30 minuti (Open-Meteo aggiorna i modelli ogni ora); dopo un errore si riprova fra 2 minuti
 static const uint32_t REFRESH_MS = 30 * 60 * 1000;
 static const uint32_t RETRY_MS = 2 * 60 * 1000;
-static const size_t MAX_RESPONSE = 8 * 1024;  // la previsione occupa ~1,4 KB
+static const size_t MAX_RESPONSE = 12 * 1024;  // la previsione occupa ~1,4 KB, un giorno scelto ~3 KB
 static const char *NVS_NAMESPACE = "meteo";
 
 static SemaphoreHandle_t mutex;
@@ -28,11 +28,30 @@ static volatile uint32_t age_offset_ms = 0;  // METEO ETA: finge che l'ultimo ag
 static volatile uint32_t air_age_offset_ms = 0;  // METEO ARIA ETA
 static volatile int32_t moon_offset_s = 0;       // METEO LUNA
 
+// ---------- Giorni scelti nella pagina a schede (SPEC_HOME_GIORNI §8.7) ----------
+
+static const int DAY_SLOTS = 6;                      // ultimi 6 giorni per tipo
+static const uint32_t DAY_VALID_MS = 30 * 60 * 1000;
+struct DaySlot {
+  time_t date;       // mezzanotte locale del giorno: resta giusta anche se passa la mezzanotte con la pagina aperta
+  DayStatus status;
+  uint32_t at_ms;    // ultima richiesta o risposta
+  bool wanted;       // da scaricare
+};
+static DaySlot wslots[DAY_SLOTS], aslots[DAY_SLOTS];
+static DayWeather *wdata;  // [DAY_SLOTS] in PSRAM
+static DayAir *adata;
+static volatile bool day_pending = false;
+
 void weather_init()
 {
   mutex = xSemaphoreCreateMutex();
   memset(&weather, 0, sizeof(weather));
+  wdata = (DayWeather *)heap_caps_calloc(DAY_SLOTS, sizeof(DayWeather), MALLOC_CAP_SPIRAM);
+  adata = (DayAir *)heap_caps_calloc(DAY_SLOTS, sizeof(DayAir), MALLOC_CAP_SPIRAM);
 }
+
+
 
 void weather_get(Weather *out)
 {
@@ -430,8 +449,223 @@ const char *weather_text(int code)
   }
 }
 
+static time_t date_of(int offset)
+{
+  time_t now = time(nullptr);
+  struct tm t;
+  localtime_r(&now, &t);
+  t.tm_mday += offset;
+  t.tm_hour = t.tm_min = t.tm_sec = 0;
+  t.tm_isdst = -1;
+  return mktime(&t);
+}
+
+static void ymd(time_t date, int add_days, char *out, size_t n)
+{
+  struct tm t;
+  localtime_r(&date, &t);
+  t.tm_mday += add_days;
+  t.tm_hour = 12;  // mezzogiorno: nessun problema al cambio dell'ora legale
+  t.tm_isdst = -1;
+  time_t d = mktime(&t);
+  localtime_r(&d, &t);
+  snprintf(out, n, "%04d-%02d-%02d", t.tm_year + 1900, t.tm_mon + 1, t.tm_mday);
+}
+
+static int find_slot(DaySlot *slots, time_t date)
+{
+  for (int i = 0; i < DAY_SLOTS; i++)
+    if (slots[i].status != DAY_NONE && slots[i].date == date) return i;
+  return -1;
+}
+
+void weather_day_request(DayKind kind, int offset, bool force)
+{
+  DaySlot *slots = kind == DAY_WEATHER ? wslots : aslots;
+  time_t date = date_of(offset);
+  xSemaphoreTake(mutex, portMAX_DELAY);
+  int i = find_slot(slots, date);
+  bool fresh = i >= 0 && slots[i].status == DAY_OK && millis() - slots[i].at_ms < DAY_VALID_MS;
+  if (i >= 0 && !force && (fresh || slots[i].status == DAY_LOADING)) {
+    xSemaphoreGive(mutex);
+    return;
+  }
+  if (i < 0) {  // posto libero, o quello usato meno di recente
+    i = 0;
+    for (int k = 0; k < DAY_SLOTS; k++) {
+      if (slots[k].status == DAY_NONE) {
+        i = k;
+        break;
+      }
+      if ((int32_t)(slots[k].at_ms - slots[i].at_ms) < 0) i = k;
+    }
+  }
+  slots[i] = { date, DAY_LOADING, millis(), true };
+  day_pending = true;
+  xSemaphoreGive(mutex);
+  work_signal();
+}
+
+static DayStatus day_get(DaySlot *slots, int offset, void *out, const void *data, size_t size)
+{
+  time_t date = date_of(offset);
+  xSemaphoreTake(mutex, portMAX_DELAY);
+  int i = find_slot(slots, date);
+  DayStatus st = i < 0 ? DAY_NONE : slots[i].status;
+  if (st == DAY_OK && millis() - slots[i].at_ms >= DAY_VALID_MS) st = DAY_NONE;  // scaduto: va richiesto
+  if (st == DAY_OK && out) memcpy(out, (const uint8_t *)data + i * size, size);
+  xSemaphoreGive(mutex);
+  return st;
+}
+
+DayStatus weather_day_get(int offset, DayWeather *out) { return day_get(wslots, offset, out, wdata, sizeof(DayWeather)); }
+DayStatus weather_day_get_air(int offset, DayAir *out) { return day_get(aslots, offset, out, adata, sizeof(DayAir)); }
+
+void weather_day_clear()
+{
+  xSemaphoreTake(mutex, portMAX_DELAY);
+  for (int i = 0; i < DAY_SLOTS; i++) wslots[i].status = aslots[i].status = DAY_NONE;
+  day_pending = false;
+  xSemaphoreGive(mutex);
+}
+
+static void day_done(DaySlot &slot, time_t date, bool ok)
+{
+  xSemaphoreTake(mutex, portMAX_DELAY);
+  // Se nel frattempo il posto è stato preso da un altro giorno, la risposta si butta
+  if (slot.date == date && slot.status == DAY_LOADING) {
+    slot.status = ok ? DAY_OK : DAY_ERROR;
+    slot.at_ms = millis();
+  }
+  xSemaphoreGive(mutex);
+}
+
+static bool fetch_day_weather(int i, time_t date)
+{
+  char d0[12], d2[12], url[512];
+  ymd(date, 0, d0, sizeof(d0));
+  ymd(date, DAY_DAYS - 1, d2, sizeof(d2));
+  snprintf(url, sizeof(url),
+           "http://api.open-meteo.com/v1/forecast?latitude=%.4f&longitude=%.4f&timezone=auto&start_date=%s&end_date=%s"
+           "&hourly=temperature_2m,weather_code,precipitation_probability,is_day"
+           "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum,"
+           "sunrise,sunset,uv_index_max",
+           lat, lon, d0, d2);
+  uint32_t t0 = millis();
+  JsonDocument doc(PsramAllocator::instance());
+  bool ok = get_json(url, doc) && doc["hourly"]["temperature_2m"].is<JsonArray>();
+  if (ok) {
+    DayWeather d = {};
+    JsonObject hourly = doc["hourly"];
+    for (int h = 0; h < 24; h++) {
+      WeatherHour &x = d.hours[h];
+      x.hour = h;
+      x.temp = (int8_t)lroundf(hourly["temperature_2m"][h] | 0.0f);
+      x.code = hourly["weather_code"][h] | 0;
+      x.is_day = hourly["is_day"][h] | 0;
+      x.rain = hourly["precipitation_probability"][h] | 255;  // nel passato può mancare
+    }
+    JsonObject daily = doc["daily"];
+    for (int k = 0; k < DAY_DAYS; k++) {
+      WeatherDay &x = d.days[k];
+      x.tmax = (int8_t)lroundf(daily["temperature_2m_max"][k] | 0.0f);
+      x.tmin = (int8_t)lroundf(daily["temperature_2m_min"][k] | 0.0f);
+      x.code = daily["weather_code"][k] | 0;
+      x.rain = daily["precipitation_probability_max"][k] | 0;
+      x.sunrise = minutes_of(daily["sunrise"][k].as<const char *>());
+      x.sunset = minutes_of(daily["sunset"][k].as<const char *>());
+      x.uv = (uint8_t)lroundf(daily["uv_index_max"][k] | 0.0f);
+      d.rain_mm10[k] = (uint16_t)lroundf((daily["precipitation_sum"][k] | 0.0f) * 10);
+    }
+    xSemaphoreTake(mutex, portMAX_DELAY);
+    if (wslots[i].date == date) wdata[i] = d;
+    xSemaphoreGive(mutex);
+  }
+  day_done(wslots[i], date, ok);
+  Serial.printf("Meteo: giorno %s %s in %lu ms\n", d0, ok ? "arrivato" : "non arrivato", (unsigned long)(millis() - t0));
+  return ok;
+}
+
+static bool fetch_day_air(int i, time_t date)
+{
+  char d0[12], url[700];
+  ymd(date, 0, d0, sizeof(d0));
+  String pollens;
+  for (const char *k : POLLEN_KEYS) pollens += String(",") + k;
+  snprintf(url, sizeof(url),
+           "http://air-quality-api.open-meteo.com/v1/air-quality?latitude=%.4f&longitude=%.4f&timezone=auto"
+           "&start_date=%s&end_date=%s&hourly=european_aqi,pm2_5,pm10,nitrogen_dioxide,ozone,european_aqi_pm2_5,"
+           "european_aqi_pm10,european_aqi_nitrogen_dioxide,european_aqi_ozone%s",
+           lat, lon, d0, d0, pollens.c_str());
+  uint32_t t0 = millis();
+  JsonDocument doc(PsramAllocator::instance());
+  bool ok = get_json(url, doc) && doc["hourly"]["european_aqi"].is<JsonArray>();
+  if (ok) {
+    static const char *const SUB[4] = { "european_aqi_pm2_5", "european_aqi_pm10", "european_aqi_nitrogen_dioxide",
+                                        "european_aqi_ozone" };
+    JsonObject hourly = doc["hourly"];
+    DayAir *a = (DayAir *)heap_caps_calloc(1, sizeof(DayAir), MALLOC_CAP_SPIRAM);
+    ok = a != nullptr;
+    for (int h = 0; ok && h < 24; h++) {
+      DayAirHour &x = a->hours[h];
+      JsonVariantConst v = hourly["european_aqi"][h];
+      x.aqi = v.is<int>() ? (uint8_t)min(v.as<int>(), 254) : 255;
+      for (int k = 0; k < 4; k++) x.sub[k] = hourly[SUB[k]][h] | 0;
+      x.pm25 = value_or_nan(hourly["pm2_5"][h]);
+      x.pm10 = value_or_nan(hourly["pm10"][h]);
+      x.no2 = value_or_nan(hourly["nitrogen_dioxide"][h]);
+      x.o3 = value_or_nan(hourly["ozone"][h]);
+      for (int p = 0; p < POLLEN_COUNT; p++) x.pollen[p] = hourly[POLLEN_KEYS[p]][h] | 0.0f;  // null come 0
+    }
+    if (ok) {
+      xSemaphoreTake(mutex, portMAX_DELAY);
+      if (aslots[i].date == date) adata[i] = *a;
+      xSemaphoreGive(mutex);
+      heap_caps_free(a);
+    }
+  }
+  day_done(aslots[i], date, ok);
+  Serial.printf("Meteo: aria del %s %s in %lu ms\n", d0, ok ? "arrivata" : "non arrivata", (unsigned long)(millis() - t0));
+  return ok;
+}
+
+// Un giorno chiesto dalla pagina, il più recente per primo. true se ha fatto una richiesta.
+static bool day_tick()
+{
+  if (!day_pending) return false;
+  int best = -1;
+  bool air = false;
+  time_t date = 0;
+  xSemaphoreTake(mutex, portMAX_DELAY);
+  for (int k = 0; k < 2 * DAY_SLOTS; k++) {
+    DaySlot &s = k < DAY_SLOTS ? wslots[k] : aslots[k - DAY_SLOTS];
+    if (!s.wanted || s.status != DAY_LOADING) continue;
+    if (best < 0 || (int32_t)(s.at_ms - (air ? aslots[best] : wslots[best]).at_ms) > 0) {
+      best = k % DAY_SLOTS;
+      air = k >= DAY_SLOTS;
+    }
+  }
+  if (best >= 0) {
+    DaySlot &s = air ? aslots[best] : wslots[best];
+    s.wanted = false;
+    date = s.date;
+  } else {
+    day_pending = false;
+  }
+  xSemaphoreGive(mutex);
+  if (best < 0) return false;
+  if (!have_location) {
+    day_done(air ? aslots[best] : wslots[best], date, false);
+    return true;
+  }
+  if (air) fetch_day_air(best, date);
+  else fetch_day_weather(best, date);
+  return true;
+}
+
 bool weather_tick()
 {
+  if (day_tick()) return true;
   if (location_reset) {
     location_reset = false;
     have_location = false;

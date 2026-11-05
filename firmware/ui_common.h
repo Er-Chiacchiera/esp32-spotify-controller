@@ -91,6 +91,9 @@ LV_FONT_DECLARE(font_ic_40);
 #define IC_SUN "\xEF\x86\x85"   // font_ic_20/28/40
 #define IC_WIND "\xEF\x9C\xAE"  // aria, font_ic_20/40
 #define IC_SPA "\xEF\x96\xBB"   // pollini, font_ic_20/40
+#define IC_HEADPHONES "\xEF\x80\xA5"  // Ascolti (Home di Spotify della fase 7), font_ic_20/28
+#define IC_COG "\xEF\x80\x93"         // Impostazioni, font_ic_28
+#define IC_INFO "\xEF\x81\x9A"        // info-circle, font_ic_28
 
 // "Domenica"… e "gennaio"… (ui.cpp)
 extern const char *const GIORNI[7];

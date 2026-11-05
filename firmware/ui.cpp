@@ -5,7 +5,9 @@
 #include <time.h>
 #include "net.h"
 #include "spotify.h"
+#include "lvgl_v8_port.h"
 #include "ui_common.h"
+#include "ui_list.h"
 #include "ui_nav.h"
 #include "ui_player.h"
 #include "ui_views.h"
@@ -15,15 +17,22 @@ const char *const GIORNI[] = { "Domenica", "Luned\xC3\xAC", "Marted\xC3\xAC", "M
 const char *const MESI[] = { "gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno",
                              "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre" };
 
-static lv_obj_t *panel_portal, *panel_saved, *panel_connecting, *panel_clock, *panel_player, *panel_update;
+static lv_obj_t *panel_portal, *panel_saved, *panel_connecting, *panel_home, *panel_player, *panel_update;
 
 static lv_obj_t *portal_qr, *portal_net_label, *portal_pass_label;
 static lv_obj_t *saved_label;
 static lv_obj_t *update_label;
 static lv_obj_t *connecting_label, *connecting_hint;
-static lv_obj_t *clock_time, *clock_date, *clock_status, *clock_spotify, *clock_wifi;
-static lv_obj_t *clock_buttons, *clock_icons, *clock_queue_icon, *clock_queue_btn;
-static DeviceChip clock_chip;
+static lv_obj_t *home_time, *home_date, *home_wifi_dot;
+static DeviceChip home_chip;
+// Riquadro Spotify della Home
+static lv_obj_t *sp_tile, *sp_title, *sp_sub, *sp_note, *sp_controls, *sp_play, *sp_play_icon, *sp_idle, *sp_skeleton;
+static ImageBox sp_cover;
+static uint32_t sp_play_hold_until = 0;
+
+static const uint32_t HOME_AFTER_MS = 2 * 60 * 1000;  // come la luce al 15%
+static bool player_open = false;     // Now playing aperto dall'utente
+static bool ever_connected = false;  // il Wi-Fi ha funzionato almeno una volta da questa accensione
 
 static char shown_ap_pass[16];
 
@@ -139,54 +148,85 @@ static void create_connecting(lv_obj_t *scr)
   make_forget_button(panel_connecting, 600, 420);
 }
 
-// Orologio: SPEC 6 §5.2 e SPEC 7 §3.5, rivisto in due colonne con il meteo (SPEC_METEO §3)
-static void create_clock(lv_obj_t *scr)
-{
-  panel_clock = ui_make_panel(scr);
+// ---------- Home (SPEC_HOME_GIORNI §3): ora, riquadro Spotify, riquadro Meteo e riquadri piccoli ----------
 
-  // Chip del dispositivo e icone in alto: solo con Spotify collegato
-  clock_icons = lv_obj_create(panel_clock);
-  lv_obj_remove_style_all(clock_icons);
-  lv_obj_set_size(clock_icons, 800, 64);
-  lv_obj_clear_flag(clock_icons, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_CLICKABLE);
-  clock_chip.create(clock_icons);
-  ui_make_top_icons(clock_icons, &clock_queue_icon, &clock_queue_btn);
-  // Coda disabilitata: non c'è niente in riproduzione
-  ui_set_text_color(clock_queue_icon, COL_DISABLED_FG_2);
-  lv_obj_clear_flag(clock_queue_btn, LV_OBJ_FLAG_CLICKABLE);
+static void play_cb(lv_event_t *e);
+
+static void create_home(lv_obj_t *scr)
+{
+  panel_home = ui_make_panel(scr);
+
+  // Chip del dispositivo e icone Ascolti, Libreria, Cerca, Impostazioni (§3.1)
+  home_chip.create(panel_home);
+  ui_make_top_icons(panel_home, false, nullptr, &home_wifi_dot);
 
   // Font nativo grande: niente transform_zoom, che con il Wi-Fi attivo faceva glitchare lo schermo.
-  // y 91: il carattere ha la riga di 81 px (non 120), così le cifre partono a y 92 come nel mockup
-  clock_time = ui_make_label(panel_clock, &font_clock_112, COL_TEXT, "--:--");
-  lv_obj_set_pos(clock_time, 40, 91);
+  // y 79: il carattere ha la riga di 81 px (non 120), così le cifre stanno dove le mette il mockup (ora a 40,60)
+  home_time = ui_make_label(panel_home, &font_clock_112, COL_TEXT, "--:--");
+  lv_obj_set_pos(home_time, 40, 79);
+  home_date = ui_make_line_label(panel_home, &font_it_20, COL_TEXT_2, 44, 184, 340);
+  ui_set_text_raw(home_date, "Sincronizzo l'ora...");
 
-  clock_date = ui_make_line_label(panel_clock, &font_it_20, COL_TEXT_2, 44, 196, 380);
-  ui_set_text_raw(clock_date, "Sincronizzo l'ora...");
+  // Riquadro Spotify 400,72 360x152 (§3.3): il tocco fuori dai pulsanti apre Now playing
+  sp_tile = ui_make_touch(panel_home, 400, 72, 360, 152, COL_SURFACE_PRESSED);
+  lv_obj_set_style_radius(sp_tile, 12, 0);
+  lv_obj_set_style_bg_color(sp_tile, COL_SURFACE, 0);
+  lv_obj_set_style_bg_opa(sp_tile, LV_OPA_COVER, 0);
+  lv_obj_add_event_cb(sp_tile, [](lv_event_t *e) { ui_open_player(); }, LV_EVENT_CLICKED, nullptr);
+  sp_cover.create(sp_tile, 16, 16, 64, false, IC_NOTE);
+  sp_title = ui_make_line_label(sp_tile, &font_it_sb20, COL_TEXT, 96, 18, 248);
+  sp_sub = ui_make_line_label(sp_tile, &font_it_16, COL_TEXT_2, 96, 46, 248);
+  sp_note = ui_make_line_label(sp_tile, &font_it_16, COL_TEXT_3, 16, 104, 328);
 
-  clock_weather_create(panel_clock);
+  // ⏮ ⏯ ⏭ centrati sul riquadro (play a x 180); premuto RAISED, perché PRESSED sul SURFACE non si vede
+  sp_controls = lv_obj_create(sp_tile);
+  lv_obj_remove_style_all(sp_controls);
+  lv_obj_set_size(sp_controls, 360, 64);
+  lv_obj_set_pos(sp_controls, 0, 84);
+  lv_obj_clear_flag(sp_controls, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_CLICKABLE);
+  lv_obj_t *prev = ui_make_icon_button(sp_controls, 84, 0, IC_PREV, COL_TEXT,
+                                       [](lv_event_t *e) { spotify_command(CMD_PREVIOUS); });
+  lv_obj_set_style_bg_color(lv_obj_get_child(prev, 0), COL_RAISED, 0);
+  lv_obj_t *next = ui_make_icon_button(sp_controls, 212, 0, IC_NEXT, COL_TEXT,
+                                       [](lv_event_t *e) { spotify_command(CMD_NEXT); });
+  lv_obj_set_style_bg_color(lv_obj_get_child(next, 0), COL_RAISED, 0);
+  sp_play = ui_make_box(sp_controls, 152, 4, 56, 56, COL_TEXT, LV_RADIUS_CIRCLE);
+  lv_obj_add_flag(sp_play, LV_OBJ_FLAG_CLICKABLE);
+  lv_obj_set_style_bg_color(sp_play, COL_TEXT_2, LV_STATE_PRESSED);
+  sp_play_icon = ui_make_label(sp_play, &font_ic_28, COL_ON_ACCENT, IC_PLAY);
+  lv_obj_center(sp_play_icon);
+  lv_obj_add_event_cb(sp_play, play_cb, LV_EVENT_CLICKED, nullptr);
 
-  clock_buttons = lv_obj_create(panel_clock);
-  lv_obj_remove_style_all(clock_buttons);
-  lv_obj_set_size(clock_buttons, 420, 48);
-  lv_obj_set_pos(clock_buttons, 0, 412);  // SPEC_SOLE_ARIA §3.1: 20 px più in basso per la riga nuova
-  lv_obj_clear_flag(clock_buttons, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_CLICKABLE);
-  ui_make_button(clock_buttons, BTN_PRIMARY, 40, 0, 176, 48, IC_HOME, "Home",
+  // Niente in riproduzione: Ascolti e Cerca
+  sp_idle = lv_obj_create(sp_tile);
+  lv_obj_remove_style_all(sp_idle);
+  lv_obj_set_size(sp_idle, 360, 48);
+  lv_obj_set_pos(sp_idle, 0, 88);
+  lv_obj_clear_flag(sp_idle, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_CLICKABLE);
+  ui_make_button(sp_idle, BTN_PRIMARY, 16, 0, 156, 48, IC_HEADPHONES, "Ascolti",
                  [](lv_event_t *e) { nav_open_section(SEC_HOME); });
-  ui_make_button(clock_buttons, BTN_SECONDARY, 232, 0, 176, 48, IC_SEARCH, "Cerca",
+  ui_make_button(sp_idle, BTN_SECONDARY, 188, 0, 156, 48, IC_SEARCH, "Cerca",
                  [](lv_event_t *e) { nav_open_section(SEC_SEARCH); });
 
-  // Spotify non collegato: al posto dei pulsanti, che servono solo con Spotify (il saluto non c'è più)
-  clock_spotify = ui_make_label(panel_clock, &font_it_16, COL_TEXT_2, "");
-  lv_label_set_long_mode(clock_spotify, LV_LABEL_LONG_WRAP);
-  lv_obj_set_width(clock_spotify, 340);
-  lv_obj_set_pos(clock_spotify, 40, 414);
+  // In arrivo: scheletro fermo
+  sp_skeleton = lv_obj_create(sp_tile);
+  lv_obj_remove_style_all(sp_skeleton);
+  lv_obj_set_size(sp_skeleton, 360, 104);
+  lv_obj_clear_flag(sp_skeleton, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_CLICKABLE);
+  ui_make_box(sp_skeleton, 16, 16, 64, 64, COL_RAISED);
+  ui_make_box(sp_skeleton, 96, 22, 180, 18, COL_RAISED, 8);
+  ui_make_box(sp_skeleton, 96, 50, 120, 14, COL_SURFACE_PRESSED, 8);
 
-  // Wi-Fi: icona + nome allineati a destra fino a x 568 (posizioni in update_clock)
-  clock_wifi = ui_make_label(panel_clock, &font_ic_20, COL_TEXT_3, IC_WIFI);
-  clock_status = ui_make_label(panel_clock, &font_it_16, COL_TEXT_3, "");
-  lv_label_set_long_mode(clock_status, LV_LABEL_LONG_DOT);
+  home_weather_create(panel_home);
+}
 
-  make_forget_button(panel_clock, 584, 412);
+static void play_cb(lv_event_t *e)
+{
+  // Inverto subito l'icona: Spotify conferma con il prossimo aggiornamento
+  bool playing = strcmp(lv_label_get_text(sp_play_icon), IC_PAUSE) == 0;
+  spotify_command(playing ? CMD_PAUSE : CMD_PLAY);
+  ui_set_text_raw(sp_play_icon, playing ? IC_PLAY : IC_PAUSE);
+  sp_play_hold_until = millis() + 2000;
 }
 
 // ---------- Aggiornamento ----------
@@ -197,67 +237,102 @@ static void show_only(lv_obj_t *panel)
 {
   if (panel == shown_panel) return;
   shown_panel = panel;
-  lv_obj_t *all[] = { panel_portal, panel_saved, panel_connecting, panel_clock, panel_player, panel_update, nav_panel() };
+  lv_obj_t *all[] = { panel_portal, panel_saved, panel_connecting, panel_home, panel_player, panel_update, nav_panel() };
   for (lv_obj_t *p : all) ui_set_hidden(p, p != panel);
 }
 
-static void update_clock(const NetStatus &st, const SpotifyStatus &sp)
+enum SpotifyTile { SPT_LOADING, SPT_TRACK, SPT_IDLE, SPT_OFF };
+
+static void update_spotify_tile(bool wifi, const SpotifyStatus &sp, const PlayerState &p)
+{
+  SpotifyTile kind;
+  const char *title = "Spotify non collegato", *sub = "", *note = "";
+  if (!wifi) kind = SPT_OFF, sub = "Wi-Fi non collegato", note = "Riprovo da solo appena torna la rete.";
+  else if (sp.state == SP_NO_CREDENTIALS) kind = SPT_OFF, sub = "Login da fare", note = "Lancia lo script di login sul computer.";
+  else if (sp.state == SP_LOGIN_REQUIRED) kind = SPT_OFF, sub = "Accesso scaduto", note = "Rifai il login dal computer.";
+  else if (sp.state == SP_ERROR) kind = SPT_OFF, sub = "Spotify non risponde", note = "Riprovo tra poco.";
+  // Pronto = /me già risposto; con nessun dispositivo attivo lo stato del lettore non cambia mai versione
+  else if (sp.state != SP_READY) kind = SPT_LOADING, note = "Mi collego a Spotify\xE2\x80\xA6";
+  else if (p.has_playback && p.title[0]) kind = SPT_TRACK, title = p.title, sub = p.artist;
+  else kind = SPT_IDLE, title = "Niente in riproduzione", sub = "Scegli cosa ascoltare";
+
+  bool track = kind == SPT_TRACK;
+  ui_set_hidden(sp_skeleton, kind != SPT_LOADING);
+  ui_set_hidden(sp_title, kind == SPT_LOADING);
+  ui_set_hidden(sp_sub, kind == SPT_LOADING);
+  ui_set_hidden(sp_note, kind != SPT_LOADING && kind != SPT_OFF);
+  ui_set_hidden(sp_controls, !track);
+  ui_set_hidden(sp_idle, kind != SPT_IDLE);
+  // Solo con un brano il riquadro apre Now playing; negli altri stati rispondono soltanto i pulsanti
+  if (lv_obj_has_flag(sp_tile, LV_OBJ_FLAG_CLICKABLE) != track) {
+    if (track) lv_obj_add_flag(sp_tile, LV_OBJ_FLAG_CLICKABLE);
+    else lv_obj_clear_flag(sp_tile, LV_OBJ_FLAG_CLICKABLE);
+  }
+  ui_set_text_raw(sp_title, title);
+  ui_set_text_raw(sp_sub, sub);
+  ui_set_text_raw(sp_note, note);
+  sp_cover.set(track ? p.cover_small : "", 0);
+  sp_cover.tick();
+  if (track && (int32_t)(sp_play_hold_until - millis()) <= 0) ui_set_text_raw(sp_play_icon, p.is_playing ? IC_PAUSE : IC_PLAY);
+}
+
+static void update_home(const NetStatus &st, const SpotifyStatus &sp)
 {
   if (!st.time_ok) {
-    ui_set_text_raw(clock_time, "--:--");
-    ui_set_text_raw(clock_date, "Sincronizzo l'ora...");
+    ui_set_text_raw(home_time, "--:--");
+    ui_set_text_raw(home_date, "Sincronizzo l'ora...");
   } else {
     time_t now = time(nullptr);
     struct tm t;
     localtime_r(&now, &t);
-    ui_set_text(clock_time, "%02d:%02d", t.tm_hour, t.tm_min);
-    ui_set_text(clock_date, "%s %d %s", GIORNI[t.tm_wday], t.tm_mday, MESI[t.tm_mon]);
+    ui_set_text(home_time, "%02d:%02d", t.tm_hour, t.tm_min);
+    ui_set_text(home_date, "%s %d %s", GIORNI[t.tm_wday], t.tm_mday, MESI[t.tm_mon]);
   }
-  if (strcmp(lv_label_get_text(clock_status), st.ssid) != 0) {
-    lv_label_set_text(clock_status, st.ssid);
-    lv_point_t sz;
-    lv_txt_get_size(&sz, st.ssid, &font_it_16, 0, 0, LV_COORD_MAX, LV_TEXT_FLAG_NONE);
-    int w = min(144, (int)sz.x);
-    lv_obj_set_size(clock_status, w, 22);
-    lv_obj_set_pos(clock_status, 568 - w, 425);
-    lv_txt_get_size(&sz, IC_WIFI, &font_ic_20, 0, 0, LV_COORD_MAX, LV_TEXT_FLAG_NONE);
-    lv_obj_set_pos(clock_wifi, 568 - w - 8 - sz.x, 426);
-  }
+  bool wifi = st.state == NET_CONNECTED;
+  ui_set_hidden(home_wifi_dot, wifi);
+  PlayerState p;
+  spotify_get_player(&p);
+  if (sp.state != SP_READY) p.has_playback = false;
+  home_chip.update(p);
+  update_spotify_tile(wifi, sp, p);
+  home_weather_update(true);
+}
 
-  bool ready = sp.state == SP_READY;
-  ui_set_hidden(clock_icons, !ready);
-  ui_set_hidden(clock_buttons, !ready);
-  ui_set_hidden(clock_spotify, ready);
-  clock_weather_update(ready);
-  if (ready) {
-    PlayerState p;
-    spotify_get_player(&p);
-    clock_chip.update(p);
-  }
+void ui_open_home()
+{
+  player_open = false;
+  nav_home();
+}
 
-  lv_color_t col = COL_TEXT_2;
-  switch (sp.state) {
-    case SP_NO_CREDENTIALS:
-      ui_set_text_raw(clock_spotify, "Spotify da collegare: lancia lo script di login sul computer");
-      col = COL_TEXT_2;
-      break;
-    case SP_WAITING_NETWORK:
-    case SP_CONNECTING:
-      ui_set_text_raw(clock_spotify, "Spotify: mi collego...");
-      col = COL_TEXT_2;
-      break;
-    case SP_READY:
-      break;
-    case SP_LOGIN_REQUIRED:
-      ui_set_text_raw(clock_spotify, "Spotify: accesso scaduto, rifai il login dal computer");
-      col = COL_WARN;
-      break;
-    case SP_ERROR:
-      ui_set_text(clock_spotify, "Spotify: %s", sp.error);
-      col = COL_WARN;
-      break;
+void ui_open_player()
+{
+  player_open = true;
+  nav_home();
+}
+
+void ui_ask_forget_wifi() { forget_btn_cb(nullptr); }
+
+// Navigazione se aperta, Now playing se l'ha aperto l'utente (resta anche in pausa), altrimenti la Home
+static void show_main(const NetStatus &st)
+{
+  SpotifyStatus sp;
+  spotify_get_status(&sp);
+  PlayerState p;
+  spotify_get_player(&p);
+  // Dopo 2 minuti senza tocchi si torna alla Home, tranne Now playing mentre la musica suona (§2)
+  if (millis() - lvgl_port_last_touch_ms() >= HOME_AFTER_MS && (nav_browsing() || (player_open && !p.is_playing)))
+    ui_open_home();
+  if (nav_browsing()) {
+    player_open = false;
+    show_only(nav_panel());
+  } else if (player_open && sp.state == SP_READY && player_panel_update()) {
+    show_only(panel_player);
+  } else {
+    player_open = false;
+    show_only(panel_home);
+    update_home(st, sp);
   }
-  ui_set_text_color(clock_spotify, col);
+  nav_tick();
 }
 
 static void ui_timer_cb(lv_timer_t *t)
@@ -286,28 +361,20 @@ static void ui_timer_cb(lv_timer_t *t)
       ui_set_text(update_label, "Aggiornamento in corso... %d%%", st.ota_percent);
       break;
     case NET_CONNECTING: {
+      if (ever_connected) {
+        show_main(st);  // Wi-Fi caduto dopo l'avvio: si resta sulla Home, che lo dice (§3.6)
+        break;
+      }
       show_only(panel_connecting);
       uint32_t secs = (millis() - st.connecting_since_ms) / 1000;
       ui_set_text(connecting_label, "Mi collego a %s...", st.ssid);
       ui_set_hidden(connecting_hint, secs < 20);
       break;
     }
-    case NET_CONNECTED: {
-      SpotifyStatus sp;
-      spotify_get_status(&sp);
-      // Navigazione (fase 6) se aperta; altrimenti il player con qualcosa in riproduzione (anche in pausa),
-      // oppure l'orologio
-      if (sp.state == SP_READY && nav_browsing()) {
-        show_only(nav_panel());
-      } else if (sp.state == SP_READY && player_panel_update()) {
-        show_only(panel_player);
-      } else {
-        show_only(panel_clock);
-        update_clock(st, sp);
-      }
-      if (sp.state == SP_READY) nav_tick();
+    case NET_CONNECTED:
+      ever_connected = true;
+      show_main(st);
       break;
-    }
     default:
       show_only(nullptr);
       break;
@@ -324,7 +391,7 @@ void ui_create()
   create_saved(scr);
   create_connecting(scr);
   create_update(scr);
-  create_clock(scr);
+  create_home(scr);
   panel_player = player_panel_create(scr);
   nav_create(scr);
 

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Home e giorni 06 · Now playing con Home</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./ui.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="scr">
+  <button class="a chip" style="left: 16px; top: 8px" aria-label="Scegli il dispositivo">
+    <svg class="tg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 3h18a1 1 0 011 1v11.5a1 1 0 01-1 1H3a1 1 0 01-1-1V4a1 1 0 011-1zM9.5 17.5h5l.8 2.5H18v1.5H6V20h2.7z"/></svg>
+    <span class="m16 d1" style="max-width: 260px">Valerio’s MacBook Pro</span>
+    <svg class="t2" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg>
+  </button>
+  <div class="a m20 t2 c" style="left: 350px; top: 19px; width: 100px">20:06</div>
+  <button class="ibtn" style="left: 472px; top: 0px" aria-label="Home"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf015;</i></button>
+  <button class="ibtn" style="left: 536px; top: 0px" aria-label="Ascolti"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf025;</i></button>
+  <button class="ibtn" style="left: 600px; top: 0px" aria-label="Libreria"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf02d;</i></button>
+  <button class="ibtn" style="left: 664px; top: 0px" aria-label="Cerca"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf002;</i></button>
+  <button class="ibtn" style="left: 728px; top: 0px" aria-label="Coda"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf00b;</i></button>
+
+  <div class="a cv v1" style="left: 32px; top: 96px; width: 300px; height: 300px"></div>
+
+  <div class="a" style="left: 364px; top: 96px; width: 404px; display: flex; flex-direction: column">
+    <div class="s30 d2">Beautiful</div>
+    <div class="m24 t2 d1" style="margin-top: 6px">Eminem</div>
+    <div class="m16 t3 d1" style="margin-top: 4px">Relapse: Refill</div>
+  </div>
+
+  <div class="sl" style="left: 364px; top: 276px; width: 404px"><i style="width: 302px"></i><b style="left: 302px"></b></div>
+  <div class="a m16 t2" style="left: 364px; top: 290px">4:54</div>
+  <div class="a m16 t2 r" style="left: 668px; top: 290px; width: 100px">6:32</div>
+
+  <button class="ibtn" style="left: 430px; top: 332px; color: #FFFFFF" aria-label="Brano precedente">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 4.5h2.5v15H5zM9 12l11-7.5v15z"/></svg>
+  </button>
+  <button class="a fx" style="left: 522px; top: 320px; width: 88px; height: 88px; border-radius: 44px; background: #1DB954; color: #000000" aria-label="Pausa">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 4.5h4.5v15H6zM13.5 4.5H18v15h-4.5z"/></svg>
+  </button>
+  <button class="ibtn" style="left: 638px; top: 332px; color: #FFFFFF" aria-label="Brano successivo">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.5 4.5H19v15h-2.5zM15 12L4 19.5v-15z"/></svg>
+  </button>
+
+  <svg class="a t2" style="left: 364px; top: 434px" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 9h4l5.5-4.5v15L7 15H3z"/><path d="M15.5 8.5a5 5 0 010 7M18.2 5.8a8.8 8.8 0 010 12.4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+  <div class="sl" style="left: 404px; top: 442px; width: 308px"><i style="width: 185px"></i><b style="left: 185px"></b></div>
+  <div class="a m16 t2 r" style="left: 720px; top: 433px; width: 48px">60</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":800,"height":480}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

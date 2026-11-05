@@ -4,7 +4,9 @@
 #include <time.h>
 #include "cover_color.h"
 #include "ui_common.h"
+#include "ui.h"
 #include "ui_nav.h"
+#include "ui_views.h"
 
 // Colonna destra accanto alla copertina 300x300 (SPEC 5.1)
 static const int COL_X = 364;
@@ -19,7 +21,7 @@ static lv_obj_t *title_label, *artist_label, *album_label;
 static lv_obj_t *seek_slider, *elapsed_label, *duration_label;
 static lv_obj_t *play_icon;
 static lv_obj_t *volume_slider, *volume_label, *volume_icon;
-static lv_obj_t *top_buttons[4], *prev_button, *next_button;
+static lv_obj_t *top_buttons[5], *prev_button, *next_button;
 
 static lv_img_dsc_t cover_dsc;
 static uint32_t shown_player_version = UINT32_MAX;
@@ -84,21 +86,29 @@ void DeviceChip::set_colors(lv_color_t surface, lv_color_t pressed, lv_color_t t
   ui_set_text_color(chevron, text_2);
 }
 
-void ui_make_top_icons(lv_obj_t *parent, lv_obj_t **queue_icon_out, lv_obj_t **queue_btn_out, lv_obj_t **buttons_out)
+void ui_make_top_icons(lv_obj_t *parent, bool now_playing, lv_obj_t **buttons_out, lv_obj_t **settings_dot_out)
 {
-  // Home 536 · Libreria 600 · Cerca 664 · Coda 728 (SPEC 7 §3.6)
-  static const char *const ICONS[] = { IC_HOME, IC_LIBRARY, IC_SEARCH, IC_QUEUE };
-  static const Section SECTIONS[] = { SEC_HOME, SEC_LIBRARY, SEC_SEARCH, SEC_QUEUE };
-  for (int i = 0; i < 4; i++) {
-    lv_obj_t *icon;
-    lv_obj_t *b = ui_make_icon_button(parent, 536 + i * 64, 0, ICONS[i], COL_TEXT_2,
-                                      [](lv_event_t *e) { nav_open_section((Section)(intptr_t)lv_event_get_user_data(e)); },
-                                      (void *)(intptr_t)SECTIONS[i], &icon);
+  // Now playing: Home 472 · Ascolti 536 · Libreria 600 · Cerca 664 · Coda 728 (SPEC_HOME_GIORNI §5).
+  // Home: Ascolti 536 · Libreria 600 · Cerca 664 · Impostazioni 728 (§3.1). SEC_NONE = Home, SECTION_COUNT = Impostazioni
+  static const char *const NP_ICONS[] = { IC_HOME, IC_HEADPHONES, IC_LIBRARY, IC_SEARCH, IC_QUEUE };
+  static const Section NP_SECTIONS[] = { SEC_NONE, SEC_HOME, SEC_LIBRARY, SEC_SEARCH, SEC_QUEUE };
+  static const char *const HOME_ICONS[] = { IC_HEADPHONES, IC_LIBRARY, IC_SEARCH, IC_COG };
+  static const Section HOME_SECTIONS[] = { SEC_HOME, SEC_LIBRARY, SEC_SEARCH, SECTION_COUNT };
+  int n = now_playing ? 5 : 4;
+  for (int i = 0; i < n; i++) {
+    Section sec = now_playing ? NP_SECTIONS[i] : HOME_SECTIONS[i];
+    lv_obj_t *b = ui_make_icon_button(parent, 792 - (n - i) * 64, 0, now_playing ? NP_ICONS[i] : HOME_ICONS[i], COL_TEXT_2,
+                                      [](lv_event_t *e) {
+                                        Section s = (Section)(intptr_t)lv_event_get_user_data(e);
+                                        if (s == SEC_NONE) ui_open_home();
+                                        else if (s == SECTION_COUNT) nav_open_view(view_settings());
+                                        else nav_open_section(s);
+                                      },
+                                      (void *)(intptr_t)sec);
     if (buttons_out) buttons_out[i] = b;
-    if (i == 3) {
-      if (queue_icon_out) *queue_icon_out = icon;
-      if (queue_btn_out) *queue_btn_out = b;
-    }
+    // Wi-Fi non collegato: pallino arancio sull'ingranaggio (772,14)
+    if (!now_playing && i == 3 && settings_dot_out)
+      *settings_dot_out = ui_make_box(b, 44, 14, 10, 10, COL_WARN, LV_RADIUS_CIRCLE);
   }
 }
 
@@ -239,7 +249,7 @@ lv_obj_t *player_panel_create(lv_obj_t *scr)
   lv_obj_set_width(clock_label, 100);
   lv_obj_set_style_text_align(clock_label, LV_TEXT_ALIGN_CENTER, 0);
   lv_obj_align(clock_label, LV_ALIGN_TOP_MID, 0, 19);
-  ui_make_top_icons(panel, nullptr, nullptr, top_buttons);
+  ui_make_top_icons(panel, true, top_buttons);
 
   // Copertina: segnaposto con la nota finché non arriva l'immagine
   cover_placeholder = ui_make_box(panel, COVER_X, COVER_Y, COVER_SIDE, COVER_SIDE, COL_PRESSED);

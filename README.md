@@ -2,15 +2,15 @@
 
 *[Leggi in italiano](README.it.md)*
 
-A 5" touch screen that sits next to your computer and works as a **remote control and dashboard for Spotify**: what's playing, playback controls, your library, search, queue, devices, plus a clock with weather, sunrise and sunset, the moon and air quality.
+A 5" touch screen that sits next to your computer and works as a **remote control and dashboard for Spotify**: what's playing, playback controls, your library, search, queue, devices. Its home screen also shows the time, the weather, sunrise and sunset, the moon and air quality.
 
 The board never plays audio. Music keeps coming out of your computer, phone or speakers: the screen only sends commands through the [Spotify Web API](https://developer.spotify.com/documentation/web-api) (a **Premium** account is required).
 
-| Clock with weather | Now playing |
+| Home | Now playing |
 |---|---|
-| ![Clock](design/sole_aria/schermate/01_orologio.png) | ![Now playing](design/colore_copertina/schermate/01_copertina_vera.png) |
-| **Spotify home** | **Air quality** |
-| ![Home](design/fase7/schermate/01_home.png) | ![Air](design/sole_aria/schermate/07_aria_vera.png) |
+| ![Home](design/home_giorni/schermate/02_home_senza_musica.png) | ![Now playing](design/colore_copertina/schermate/01_copertina_vera.png) |
+| **Listening (Spotify home)** | **Air quality, any day** |
+| ![Home](design/fase7/schermate/01_home.png) | ![Air](design/home_giorni/schermate/13_aria_domani.png) |
 
 The interface is in Italian (the project was made in Italy). The screenshots are taken from the board itself.
 
@@ -19,12 +19,15 @@ The interface is in Italian (the project was made in Italy). The screenshots are
 - **Now playing**: cover, title, artist, progress, play/pause, previous/next, volume. The background follows the colours of the cover.
 - **Library**: playlists, liked songs, albums, followed artists, with pages and track menus.
 - **Search** (tracks, albums, artists, playlists), **queue** and **device picker**.
-- **Spotify home**: recently played and your most played artists and tracks.
-- **Clock** when nothing is playing, with:
+- **Listening** (Spotify home): recently played and your most played artists and tracks.
+- **Home screen**, a dashboard of tiles: the time, a Spotify tile with ⏮ ⏯ ⏭ (Now playing opens when you tap it), and:
   - **weather** now and for the next hours, from [Open-Meteo](https://open-meteo.com/) (free, no key needed). The location comes from your internet connection, or you can set it;
   - **sun and moon**: sunrise, sunset, daylight, UV index, moon phase;
   - **air**: European air quality index, pollutants and pollen.
-- **Screen brightness**: 100%, then 15% after 2 minutes without touches, off after 12.
+- **Any day from 7 days ago to 7 days ahead** for weather, sun and moon, and air quality (air only up to 4 days ahead): arrows or a swipe.
+- **Next track** and play/pause always at hand in the side bar of every page.
+- **Settings**: Wi-Fi network and signal, firmware fingerprint and IP address.
+- **Screen brightness**: 100%, then 15% after 2 minutes without touches (and back to the home screen), off after 12.
 - **Wi-Fi setup from the phone**: on first boot the board creates its own network and a setup page.
 - **Updates over Wi-Fi**, with automatic rollback if the new firmware crashes.
 

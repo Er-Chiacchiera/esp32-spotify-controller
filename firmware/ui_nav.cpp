@@ -1,6 +1,7 @@
 #include "ui_nav.h"
 
 #include <Arduino.h>
+#include "ui.h"
 #include "ui_common.h"
 #include "ui_list.h"
 #include "ui_views.h"
@@ -21,10 +22,12 @@ static OpKind op = OP_NONE;
 static View *op_view = nullptr;
 static Section op_section;
 
-// Barra laterale
-static lv_obj_t *rail_cover_touch, *rail_play_circle, *rail_play_icon;
+// Barra laterale (SPEC_HOME_GIORNI §4): copertina, play/pausa, Avanti, poi Home della scheda e le sezioni
+// di Spotify. La Coda non ha voce: si apre da Now playing.
+enum RailItem { RAIL_HOME, RAIL_LISTEN, RAIL_LIBRARY, RAIL_SEARCH, RAIL_DEVICES, RAIL_COUNT };
+static lv_obj_t *rail_cover_touch, *rail_play_circle, *rail_play_icon, *rail_next, *rail_next_icon;
 static ImageBox rail_cover;
-static lv_obj_t *rail_items[SECTION_COUNT], *rail_icons[SECTION_COUNT], *rail_bar;
+static lv_obj_t *rail_items[RAIL_COUNT], *rail_icons[RAIL_COUNT], *rail_bar;
 static lv_obj_t *rail_dot;
 static uint32_t play_hold_until = 0;
 
@@ -271,7 +274,7 @@ static void check_commands(const PlayerState &p)
   }
 }
 
-// ---------- Barra laterale (SPEC 4.1) ----------
+// ---------- Barra laterale (SPEC_HOME_GIORNI §4) ----------
 
 static void rail_play_cb(lv_event_t *e)
 {
@@ -283,18 +286,31 @@ static void rail_play_cb(lv_event_t *e)
   play_hold_until = millis() + 2000;
 }
 
-static void rail_section_cb(lv_event_t *e) { nav_open_section((Section)(intptr_t)lv_event_get_user_data(e)); }
+static const Section RAIL_SECTIONS[RAIL_COUNT] = { SEC_NONE, SEC_HOME, SEC_LIBRARY, SEC_SEARCH, SEC_DEVICES };
+
+static void rail_item_cb(lv_event_t *e)
+{
+  int i = (intptr_t)lv_event_get_user_data(e);
+  if (i == RAIL_HOME) ui_open_home();  // la pila si azzera
+  else nav_open_section(RAIL_SECTIONS[i]);
+}
 
 static void create_rail(lv_obj_t *parent)
 {
   ui_make_box(parent, 0, 0, 88, 480, COL_RAIL);
-  rail_cover_touch = ui_make_touch(parent, 0, 0, 88, 88, COL_RAIL_PRESSED);
-  rail_cover.create(rail_cover_touch, 12, 12, 64, false, IC_NOTE);
+  // Copertina: Now playing, oppure la Home se non c'è niente in riproduzione
+  rail_cover_touch = ui_make_touch(parent, 0, 0, 88, 80, COL_RAIL_PRESSED);
+  rail_cover.create(rail_cover_touch, 12, 8, 64, false, IC_NOTE);
   lv_obj_set_style_text_font(rail_cover.placeholder, &font_ic_28, 0);
-  lv_obj_add_event_cb(rail_cover_touch, [](lv_event_t *e) { nav_home(); }, LV_EVENT_CLICKED, nullptr);
+  lv_obj_add_event_cb(rail_cover_touch, [](lv_event_t *e) {
+    PlayerState p;
+    spotify_get_player(&p);
+    if (p.has_playback) ui_open_player();
+    else ui_open_home();
+  }, LV_EVENT_CLICKED, nullptr);
 
-  lv_obj_t *play = ui_make_touch(parent, 0, 88, 88, 64, COL_RAIL, false);
-  rail_play_circle = ui_make_box(play, 18, 6, 52, 52, COL_TEXT, LV_RADIUS_CIRCLE);
+  lv_obj_t *play = ui_make_touch(parent, 0, 80, 88, 56, COL_RAIL, false);
+  rail_play_circle = ui_make_box(play, 18, 2, 52, 52, COL_TEXT, LV_RADIUS_CIRCLE);
   lv_obj_set_style_bg_color(rail_play_circle, COL_TEXT_2, LV_STATE_PRESSED);
   rail_play_icon = ui_make_label(rail_play_circle, &font_ic_28, COL_ON_ACCENT, IC_PLAY);
   lv_obj_center(rail_play_icon);
@@ -304,17 +320,22 @@ static void create_rail(lv_obj_t *parent)
     if (lv_event_get_code(e) == LV_EVENT_PRESSED) lv_obj_add_state(rail_play_circle, LV_STATE_PRESSED);
     else lv_obj_clear_state(rail_play_circle, LV_STATE_PRESSED);
   }, LV_EVENT_ALL, nullptr);
-  // Una voce per sezione, nell'ordine di Section (la Home sta sopra la Libreria, SPEC 7 §2)
-  static const char *const ICONS[] = { IC_LIBRARY, IC_SEARCH, IC_QUEUE, IC_COMPUTER, IC_HOME };
-  static const int YS[] = { 216, 280, 344, 408, 152 };
-  for (int i = 0; i < SECTION_COUNT; i++) {
-    rail_items[i] = ui_make_touch(parent, 0, YS[i], 88, i == 3 ? 72 : 64, COL_RAIL_PRESSED);
+  // Avanti: si resta dove si è
+  rail_next = ui_make_icon_button(parent, 12, 132, IC_NEXT, COL_TEXT, [](lv_event_t *e) {
+    spotify_command(CMD_NEXT);
+  }, nullptr, &rail_next_icon);
+  lv_obj_set_size(rail_next, 64, 64);
+  ui_make_box(parent, 28, 196, 32, 1, COL_RAISED);
+
+  // Voci alte 56 da y 200: Home, Ascolti (ex Home di Spotify), Libreria, Cerca, Dispositivi
+  static const char *const ICONS[] = { IC_HOME, IC_HEADPHONES, IC_LIBRARY, IC_SEARCH, IC_COMPUTER };
+  for (int i = 0; i < RAIL_COUNT; i++) {
+    rail_items[i] = ui_make_touch(parent, 0, 200 + i * 56, 88, 56, COL_RAIL_PRESSED);
     rail_icons[i] = ui_make_label(rail_items[i], &font_ic_28, COL_TEXT_2, ICONS[i]);
-    if (i == 3) lv_obj_align(rail_icons[i], LV_ALIGN_TOP_MID, 0, 18);
-    else lv_obj_center(rail_icons[i]);
-    lv_obj_add_event_cb(rail_items[i], rail_section_cb, LV_EVENT_CLICKED, (void *)(intptr_t)i);
+    lv_obj_center(rail_icons[i]);
+    lv_obj_add_event_cb(rail_items[i], rail_item_cb, LV_EVENT_CLICKED, (void *)(intptr_t)i);
   }
-  rail_dot = ui_make_box(rail_items[3], 52, 20, 10, 10, COL_WARN, LV_RADIUS_CIRCLE);
+  rail_dot = ui_make_box(rail_items[RAIL_DEVICES], 52, 12, 10, 10, COL_WARN, LV_RADIUS_CIRCLE);
   rail_bar = ui_make_box(parent, 0, 0, 4, 32, COL_ACCENT);
   lv_obj_add_flag(rail_bar, LV_OBJ_FLAG_HIDDEN);
 }
@@ -329,27 +350,34 @@ static void update_rail(const PlayerState &p)
   ui_set_bg(rail_play_circle, can_play ? COL_TEXT : COL_PRESSED);
   ui_set_text_color(rail_play_icon, can_play ? COL_ON_ACCENT : COL_DISABLED_FG);
   if ((int32_t)(play_hold_until - millis()) <= 0) ui_set_text_raw(rail_play_icon, p.is_playing ? IC_PAUSE : IC_PLAY);
+  ui_set_text_color(rail_next_icon, can_play ? COL_TEXT : COL_DISABLED_FG_2);
+  if (lv_obj_has_flag(rail_next, LV_OBJ_FLAG_CLICKABLE) != can_play) {
+    if (can_play) lv_obj_add_flag(rail_next, LV_OBJ_FLAG_CLICKABLE);
+    else lv_obj_clear_flag(rail_next, LV_OBJ_FLAG_CLICKABLE);
+  }
 
-  // Voce attiva: la sezione da cui è partita la pila (la pagina artista aperta dalla Home tiene accesa
-  // la Home, SPEC 7 §2); Dispositivi aperta da un comando fallito accende Dispositivi
+  // Voce attiva: la sezione da cui è partita la pila (la pagina artista aperta da Ascolti tiene accesi
+  // Ascolti, SPEC 7 §2); Dispositivi aperta da un comando fallito accende Dispositivi; Meteo e Impostazioni
+  // (SEC_NONE) accendono la Home; la Coda, aperta da Now playing, nessuna voce
   int active = -1;
-  if (depth > 0) active = stack[depth - 1]->section() == SEC_DEVICES ? SEC_DEVICES : stack[0]->section();
-  if (active >= SECTION_COUNT) active = -1;
-  for (int i = 0; i < SECTION_COUNT; i++) {
-    if (i == 3) continue;
+  if (depth > 0) {
+    Section s = stack[depth - 1]->section() == SEC_DEVICES ? SEC_DEVICES : stack[0]->section();
+    for (int i = 0; i < RAIL_COUNT; i++)
+      if (RAIL_SECTIONS[i] == s) active = i;
+  }
+  for (int i = 0; i < RAIL_COUNT; i++) {
+    if (i == RAIL_DEVICES) continue;
     ui_set_text_color(rail_icons[i], i == active ? COL_TEXT : COL_TEXT_2);
   }
   // Dispositivi: icona del tipo attivo in verde, oppure computer grigio con pallino arancio
   bool device = p.has_playback && p.device[0];
-  ui_set_text_raw(rail_icons[3], device ? ui_device_icon(spotify_device_icon(p.device_type)) : IC_COMPUTER);
-  ui_set_text_color(rail_icons[3], device ? COL_ACCENT : (active == 3 ? COL_TEXT : COL_TEXT_2));
+  ui_set_text_raw(rail_icons[RAIL_DEVICES], device ? ui_device_icon(spotify_device_icon(p.device_type)) : IC_COMPUTER);
+  ui_set_text_color(rail_icons[RAIL_DEVICES], device ? COL_ACCENT : (active == RAIL_DEVICES ? COL_TEXT : COL_TEXT_2));
   ui_set_hidden(rail_dot, device);
 
+  // Barretta 4x32 a cima della voce + 12
   ui_set_hidden(rail_bar, active < 0);
-  if (active >= 0) {
-    static const int BAR_Y[] = { 232, 296, 360, 428, 168 };
-    if (lv_obj_get_y(rail_bar) != BAR_Y[active]) lv_obj_set_y(rail_bar, BAR_Y[active]);
-  }
+  if (active >= 0 && lv_obj_get_y(rail_bar) != 212 + active * 56) lv_obj_set_y(rail_bar, 212 + active * 56);
 }
 
 // ---------- Creazione e aggiornamento ----------

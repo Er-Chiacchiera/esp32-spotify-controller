@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Home e giorni 12 · Sole e luna, fra una settimana</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./ui.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="scr">
+  <nav class="rail v2" aria-label="Navigazione">
+    <button class="np" aria-label="Apri Now playing"><div class="cv v5"></div></button>
+    <button class="pp" aria-label="Pausa"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf04c;</i></button>
+    <button class="nx" aria-label="Brano successivo"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf051;</i></button>
+    <span class="sp"></span>
+    <button class="it on" style="top: 200px" aria-label="Home"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf015;</i></button>
+    <button class="it" style="top: 256px" aria-label="Ascolti"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf025;</i></button>
+    <button class="it" style="top: 312px" aria-label="Libreria"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf02d;</i></button>
+    <button class="it" style="top: 368px" aria-label="Cerca"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf002;</i></button>
+    <button class="it" style="top: 424px" aria-label="Dispositivi"><i class="fa" style="color: #1DB954; font-size: 28px; height: 28px" aria-hidden="true">&#xf108;</i></button>
+  </nav>
+
+  <button class="back" aria-label="Indietro"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <button class="tab" style="left: 152px; width: 104px">Meteo</button>
+  <button class="tab on" style="left: 256px; width: 144px">Sole e luna</button>
+  <button class="tab" style="left: 400px; width: 104px">Aria</button>
+  <button class="stp" style="left: 512px; width: 64px; color: #FFFFFF" aria-label="Giorno prima"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf053;</i></button>
+  <button class="stl" aria-label="Torna a oggi"><span class="s20">Giovedì 12</span><span class="m16 tg">Torna a oggi</span></button>
+  <button class="stp" style="left: 712px; width: 64px; color: #FFFFFF" aria-label="Giorno dopo" disabled><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf054;</i></button>
+
+  <div class="wpan ab" style="left: 104px; top: 72px; width: 672px; height: 216px">
+    <span style="left: 20px; top: 15px"><i class="wi w28 sun" aria-hidden="true">&#xf185;</i></span>
+    <span class="s20" style="left: 60px; top: 16px">Giovedì 12 novembre</span>
+    <span class="m16 t2 r" style="left: 312px; top: 19px; width: 340px">Indice UV massimo 2 · basso</span>
+    <span class="m16 t2" style="left: 20px; top: 60px">Alba</span>
+    <span class="s30" style="left: 20px; top: 84px">06:55</span>
+    <span class="m16 t2" style="left: 244px; top: 60px">Tramonto</span>
+    <span class="s30" style="left: 244px; top: 84px">16:52</span>
+    <span class="m16 t2" style="left: 468px; top: 60px">Ore di luce</span>
+    <span class="s30" style="left: 468px; top: 84px">9 h 57 min</span>
+    <span class="m16 t3" style="left: 468px; top: 124px">15 min in meno di oggi</span>
+    <span class="seg" style="left: 20px; top: 158px; width: 632px; height: 12px; border-radius: 6px; background: #3A3A3A"></span>
+    <span class="seg" style="left: 202px; top: 158px; width: 262px; height: 12px; border-radius: 6px; background: #FFC24B"></span>
+    <span class="m16 t3 c" style="left: 148px; top: 178px; width: 60px">06:00</span>
+    <span class="m16 t3 c" style="left: 306px; top: 178px; width: 60px">12:00</span>
+    <span class="m16 t3 c" style="left: 464px; top: 178px; width: 60px">18:00</span>
+  </div>
+  <div class="wcard" style="left: 104px; top: 296px">
+    <span class="s20" style="left: 20px; top: 16px">Prossimi giorni</span>
+    <span class="m16 t2" style="left: 20px; top: 56px">Venerdì 13</span>
+    <span class="m16 t2 r" style="left: 148px; top: 56px; width: 160px">luce 9 h 55 min</span>
+    <span class="m20" style="left: 20px; top: 78px">06:56 – 16:51</span>
+    <span class="m16 t2" style="left: 20px; top: 112px">Sabato 14</span>
+    <span class="m16 t2 r" style="left: 148px; top: 112px; width: 160px">luce 9 h 54 min</span>
+    <span class="m20" style="left: 20px; top: 134px">06:57 – 16:51</span>
+  </div>
+  <div class="wcard" style="left: 448px; top: 296px">
+    <span class="s20" style="left: 20px; top: 16px">Luna</span>
+    <span style="left: 20px; top: 56px"><svg class="moon" width="64" height="64" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="32" fill="#3A3A3A"/><path d="M32 0A32 32 0 0 1 32 64A17.92 32 0 0 0 32 0Z" fill="#D6D6D6"/></svg></span>
+    <span class="m20 d1" style="left: 100px; top: 62px; width: 208px">Falce crescente</span>
+    <span class="m16 t2" style="left: 100px; top: 90px">Illuminata al 9%</span>
+    <span class="m16 t2" style="left: 20px; top: 132px">Luna piena il 24 novembre</span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":800,"height":480}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -86,6 +86,38 @@ const char *weather_icon(int code, bool day);
 const char *weather_text(int code);
 static const char *const WX_ICON_SUN = "\xEF\x86\x85";
 
+// ---------- Un giorno scelto nella pagina a schede (SPEC_HOME_GIORNI §8.7) ----------
+// Oggi usa Weather; gli altri giorni (da -7 a +7) si chiedono a Open-Meteo quando servono.
+
+static const int DAY_DAYS = 3;  // il giorno scelto e i due dopo (scheda di destra, Prossimi giorni)
+
+struct DayWeather {
+  WeatherHour hours[24];          // dalle 00:00 alle 23:00 del giorno scelto (rain 255 se manca, nel passato)
+  WeatherDay days[DAY_DAYS];      // il giorno scelto, +1, +2
+  uint16_t rain_mm10[DAY_DAYS];   // pioggia caduta, decimi di mm (precipitation_sum)
+};
+
+struct DayAirHour {
+  uint8_t aqi;                    // 255 se l'ora non ha dato (fine della previsione)
+  uint8_t sub[4];                 // sottoindici PM2,5, PM10, NO2, O3
+  float pm25, pm10, no2, o3;
+  float pollen[POLLEN_COUNT];
+};
+struct DayAir {
+  DayAirHour hours[24];           // dalle 00:00 alle 23:00
+};
+
+enum DayKind { DAY_WEATHER, DAY_AIR };
+enum DayStatus { DAY_NONE, DAY_LOADING, DAY_OK, DAY_ERROR };
+// Chiede il giorno a "offset" giorni da oggi (non 0). Se è già in memoria e valido (30 minuti) non fa niente,
+// a meno di force (Riprova). Le richieste dei giorni passano prima dell'aggiornamento periodico.
+void weather_day_request(DayKind kind, int offset, bool force = false);
+// Stato del giorno e, se DAY_OK, i dati (out può essere nullptr)
+DayStatus weather_day_get(int offset, DayWeather *out);
+DayStatus weather_day_get_air(int offset, DayAir *out);
+// Uscendo dalla pagina la memoria dei giorni si svuota
+void weather_day_clear();
+
 void weather_init();
 void weather_get(Weather *out);
 // Dal task Spotify, con rete e ora pronte: scarica meteo e aria se è ora (ogni 30 minuti), una richiesta

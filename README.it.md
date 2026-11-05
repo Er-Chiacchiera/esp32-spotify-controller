@@ -2,15 +2,15 @@
 
 *[Read in English](README.md)*
 
-Uno schermo touch da 5" da tenere accanto al computer come **telecomando e cruscotto di Spotify**: cosa suona, i comandi, la libreria, la ricerca, la coda e i dispositivi. Quando non suona niente mostra un orologio con meteo, alba e tramonto, luna e qualità dell'aria.
+Uno schermo touch da 5" da tenere accanto al computer come **telecomando e cruscotto di Spotify**: cosa suona, i comandi, la libreria, la ricerca, la coda e i dispositivi. La sua Home mostra anche l'ora, il meteo, alba e tramonto, la luna e la qualità dell'aria.
 
 La scheda non riproduce mai l'audio. La musica continua a uscire dal computer, dal telefono o dalle casse: lo schermo manda solo i comandi tramite la [Web API di Spotify](https://developer.spotify.com/documentation/web-api) (serve un account **Premium**).
 
-| Orologio con il meteo | In riproduzione |
+| Home | In riproduzione |
 |---|---|
-| ![Orologio](design/sole_aria/schermate/01_orologio.png) | ![In riproduzione](design/colore_copertina/schermate/01_copertina_vera.png) |
-| **Home di Spotify** | **Qualità dell'aria** |
-| ![Home](design/fase7/schermate/01_home.png) | ![Aria](design/sole_aria/schermate/07_aria_vera.png) |
+| ![Home](design/home_giorni/schermate/02_home_senza_musica.png) | ![In riproduzione](design/colore_copertina/schermate/01_copertina_vera.png) |
+| **Ascolti (Home di Spotify)** | **Qualità dell'aria, qualsiasi giorno** |
+| ![Home](design/fase7/schermate/01_home.png) | ![Aria](design/home_giorni/schermate/13_aria_domani.png) |
 
 Le foto sono prese direttamente dalla scheda.
 
@@ -19,12 +19,15 @@ Le foto sono prese direttamente dalla scheda.
 - **In riproduzione**: copertina, titolo, artista, avanzamento, play/pausa, brano precedente e successivo, volume. Il fondo prende i colori della copertina.
 - **Libreria**: playlist, brani piaciuti, album e artisti seguiti, a pagine, con il menu del brano.
 - **Ricerca** (brani, album, artisti, playlist), **coda** e **scelta del dispositivo**.
-- **Home di Spotify**: ascoltati di recente, artisti e brani più ascoltati.
-- **Orologio** quando non suona niente, con:
+- **Ascolti** (Home di Spotify): ascoltati di recente, artisti e brani più ascoltati.
+- **Home** a riquadri: l'ora, un riquadro Spotify con ⏮ ⏯ ⏭ (toccandolo si apre la schermata del brano), e:
   - **meteo** di adesso e delle prossime ore, da [Open-Meteo](https://open-meteo.com/) (gratuito, senza chiave). La posizione si ricava dalla connessione, oppure si fissa a mano;
   - **sole e luna**: alba, tramonto, ore di luce, indice UV, fase della luna;
   - **aria**: indice europeo della qualità dell'aria, inquinanti e pollini.
-- **Luce dello schermo**: 100%, poi 15% dopo 2 minuti senza tocchi, spenta dopo 12.
+- **Qualsiasi giorno da 7 giorni fa a 7 giorni avanti** per meteo, sole e luna, aria (l'aria solo fino a 4 giorni avanti): con le frecce o scorrendo col dito.
+- **Brano successivo** e play/pausa sempre a portata nella barra laterale di ogni pagina.
+- **Impostazioni**: rete Wi-Fi e segnale, impronta del firmware e indirizzo IP.
+- **Luce dello schermo**: 100%, poi 15% dopo 2 minuti senza tocchi (e si torna alla Home), spenta dopo 12.
 - **Wi-Fi impostato dal telefono**: al primo avvio la scheda crea una sua rete con una pagina di configurazione.
 - **Aggiornamenti via Wi-Fi**, con ritorno automatico alla versione precedente se quella nuova si blocca.
 

@@ -6,7 +6,7 @@
 #include "spotify.h"
 
 lv_obj_t *player_panel_create(lv_obj_t *scr);
-// Aggiorna la schermata; restituisce false se non c'è niente in riproduzione (va mostrato l'orologio).
+// Aggiorna la schermata; restituisce false se non c'è niente in riproduzione (si torna alla Home).
 bool player_panel_update();
 // Prova dal PC (comando seriale COLORE RRGGBB): fondo di Now playing fisso; -1 torna al colore della copertina.
 void player_force_bg(int32_t rgb);
@@ -20,7 +20,8 @@ struct DeviceChip {
   void set_colors(lv_color_t surface, lv_color_t pressed, lv_color_t text_2);  // Now playing (SPEC_COLORE §2.2)
 };
 
-// Home / Libreria / Cerca / Coda in alto a destra (536, 600, 664, 728). buttons_out: i 4 pulsanti
-// (figlio 0 il cerchio premuto, figlio 1 l'icona), per ricolorarli in Now playing
-void ui_make_top_icons(lv_obj_t *parent, lv_obj_t **queue_icon_out = nullptr, lv_obj_t **queue_btn_out = nullptr,
-                       lv_obj_t **buttons_out = nullptr);
+// Icone in alto a destra, allineate a 792. Now playing: Home, Ascolti, Libreria, Cerca, Coda (5 pulsanti);
+// Home della scheda: Ascolti, Libreria, Cerca, Impostazioni (4) più il pallino del Wi-Fi sull'ingranaggio.
+// buttons_out: i pulsanti (figlio 0 il cerchio premuto, figlio 1 l'icona), per ricolorarli in Now playing
+void ui_make_top_icons(lv_obj_t *parent, bool now_playing, lv_obj_t **buttons_out = nullptr,
+                       lv_obj_t **settings_dot_out = nullptr);

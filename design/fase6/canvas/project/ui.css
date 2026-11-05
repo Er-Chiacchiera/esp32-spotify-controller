@@ -220,3 +220,22 @@ svg{display:block;flex:none}
 .seg{position:absolute;height:8px;border-radius:4px}
 .bar{position:absolute;width:20px;border-radius:2px 2px 0 0}
 .hr1{position:absolute;height:1px;background:#3A3A3A}
+
+/* Home e giorni (home_giorni/SPEC_HOME_GIORNI.md) */
+.rail.v2 .np{height:80px}
+.rail.v2 .pp{top:82px}
+.rail.v2 .nx{position:absolute;left:0;top:136px;width:88px;height:56px;display:flex;align-items:center;justify-content:center;color:#FFFFFF}
+.rail.v2 .nx:disabled{color:#3A3A3A}
+.rail.v2 .sp{position:absolute;left:28px;top:196px;width:32px;height:1px;background:#3A3A3A}
+.rail.v2 .it{height:56px}
+.rail.v2 .it.on::before{top:12px}
+.rail.v2 .alert{top:12px}
+.htile{position:absolute;border-radius:12px;background:#242424;display:block}
+.htile.pr{background:#333333}
+.htile>*{position:absolute}
+.pc{width:56px;height:56px;border-radius:28px;background:#FFFFFF;color:#000000;display:flex;align-items:center;justify-content:center}
+.stp{position:absolute;top:0;height:64px;display:flex;align-items:center;justify-content:center}
+.stp:disabled{color:#3A3A3A}
+.stl{position:absolute;left:576px;top:4px;width:136px;height:56px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.stl.pr{background:#2A2A2A}
+.fa{font-family:"FA5";font-style:normal;font-weight:900;line-height:1;display:block}
