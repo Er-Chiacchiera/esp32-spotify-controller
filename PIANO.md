@@ -104,6 +104,8 @@ Valerio ha messo in pausa lo sviluppo: queste cose restano da fare, in un ordine
 - [x] **Aggiornamenti senza cavo (OTA)**: fatto il 3 novembre 2026, `.venv/bin/python strumenti/aggiorna_wifi.py`. Senza cavo restano fuori il registro, le foto dello schermo e i tocchi simulati: se servisse, si possono spostare anche quelli sulla rete.
 - [x] **Meteo sull'Orologio**: fatto il 4 novembre 2026 secondo `design/meteo/SPEC_METEO.md` (`firmware/weather.cpp`, `firmware/ui_weather.cpp`), foto in `design/meteo/schermate/`. Da guardare a occhio: leggibilità al 15% di luce, trattini sotto il sole giallo e la fascia.
 - [x] **Sole, luna, aria e pollini**: fatto il 5 novembre 2026 secondo `design/sole_aria/SPEC_SOLE_ARIA.md` (`firmware/weather.cpp`, `firmware/ui_weather.cpp`, `firmware/moon_images.c`), foto in `design/sole_aria/schermate/`. Da guardare a occhio: trattini sotto luna piena, barra gialla e barre dell'aria; luce al 15%; falce a 20 px.
+- [ ] **Home generale e giorni**: chiesto da Valerio il 5 novembre 2026. Brief `design/BRIEF_HOME_GIORNI.md`, in attesa della SPEC di Claude Design.
+- [x] **Pubblicazione su GitHub**: fatta il 5 novembre 2026, https://github.com/Er-Chiacchiera/esp32-spotify-controller.
 - [ ] **Copertine sulla microSD**: cache persistente delle copertine già viste (oggi 4-9 s per riscaricare quelle della Home). Serve una microSD nella scheda.
 - [ ] **Tasti multimediali via USB** (fase 9): la scheda fa da tastiera play/pausa, avanti, indietro, volume dalla porta "USB", anche senza rete.
 - [ ] **Scatola stampata in 3D** (fase 9, facoltativa).
