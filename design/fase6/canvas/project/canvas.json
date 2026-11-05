@@ -32,6 +32,10 @@
     {
       "id": "home",
       "name": "Home e giorni"
+    },
+    {
+      "id": "computer",
+      "name": "Computer"
     }
   ],
   "boards": {
@@ -657,6 +661,70 @@
       "h": 480,
       "page": "home",
       "title": "17 · Giorno non disponibile"
+    },
+    "pc_01_home-computer.dc.html": {
+      "x": 0,
+      "y": 0,
+      "w": 800,
+      "h": 480,
+      "page": "computer",
+      "title": "01 · Home con il computer"
+    },
+    "pc_02_home-avviso.dc.html": {
+      "x": 880,
+      "y": 0,
+      "w": 800,
+      "h": 480,
+      "page": "computer",
+      "title": "02 · Home, batteria da guardare"
+    },
+    "pc_03_computer.dc.html": {
+      "x": 1760,
+      "y": 0,
+      "w": 800,
+      "h": 480,
+      "page": "computer",
+      "title": "03 · Pagina del computer"
+    },
+    "pc_04_computer-avvisi.dc.html": {
+      "x": 2640,
+      "y": 0,
+      "w": 800,
+      "h": 480,
+      "page": "computer",
+      "title": "04 · Pagina con gli avvisi"
+    },
+    "pc_05_computer-non-raggiungibile.dc.html": {
+      "x": 0,
+      "y": 560,
+      "w": 800,
+      "h": 480,
+      "page": "computer",
+      "title": "05 · Computer non raggiungibile"
+    },
+    "pc_06_computer-mai-avviato.dc.html": {
+      "x": 880,
+      "y": 560,
+      "w": 800,
+      "h": 480,
+      "page": "computer",
+      "title": "06 · Nessun computer collegato"
+    },
+    "pc_07_computer-fisso.dc.html": {
+      "x": 1760,
+      "y": 560,
+      "w": 800,
+      "h": 480,
+      "page": "computer",
+      "title": "07 · Computer fisso"
+    },
+    "pc_08_impostazioni.dc.html": {
+      "x": 2640,
+      "y": 560,
+      "w": 800,
+      "h": 480,
+      "page": "computer",
+      "title": "08 · Impostazioni con il computer"
     }
   },
   "order": [
@@ -740,7 +808,15 @@
     "hg_14_aria-passato.dc.html",
     "hg_15_aria-oltre.dc.html",
     "hg_16_giorno-in-arrivo.dc.html",
-    "hg_17_giorno-errore.dc.html"
+    "hg_17_giorno-errore.dc.html",
+    "pc_01_home-computer.dc.html",
+    "pc_02_home-avviso.dc.html",
+    "pc_03_computer.dc.html",
+    "pc_04_computer-avvisi.dc.html",
+    "pc_05_computer-non-raggiungibile.dc.html",
+    "pc_06_computer-mai-avviato.dc.html",
+    "pc_07_computer-fisso.dc.html",
+    "pc_08_impostazioni.dc.html"
   ],
   "notes": {},
   "designSystems": []

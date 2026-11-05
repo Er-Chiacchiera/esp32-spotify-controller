@@ -14,6 +14,7 @@
 #include "ui.h"
 #include "ui_player.h"
 #include "weather.h"
+#include "computer.h"
 
 using namespace esp_panel::drivers;
 using namespace esp_panel::board;
@@ -72,6 +73,8 @@ static void send_screenshot()
 //   INATTIVO s                                come se l'ultimo tocco fosse s secondi fa (luce dello schermo)
 //   COLORE RRGGBB | COLORE AUTO               fondo di Now playing fisso, per le prove (SPEC_COLORE §6)
 //   METEO | METEO <lat> <lon> <città> | METEO AUTO   meteo dell'Orologio: stampa, posizione fissa, posizione dall'IP
+//   COMPUTER                                  stato del computer ricevuto da strumenti/ponte_computer.py
+//   COMPUTER PROVA <dato> <valore> | FINE     valori finti del computer, per le prove (computer.h)
 //   OTA_SET <password>                        password degli aggiornamenti via Wi-Fi (strumenti/aggiorna_wifi.py)
 static void handle_serial_line(String &line)
 {
@@ -91,6 +94,8 @@ static void handle_serial_line(String &line)
     player_force_bg(-1);
   } else if (line.startsWith("COLORE ") && line.length() == 13) {
     player_force_bg((int32_t)strtoul(line.c_str() + 7, nullptr, 16));
+  } else if (line == "COMPUTER" || line.startsWith("COMPUTER ")) {
+    computer_serial(line.c_str() + 8);
   } else if (line == "METEO" || line.startsWith("METEO ")) {
     weather_serial(line.c_str() + 5);
   } else if (line.startsWith("OTA_SET ")) {
@@ -221,6 +226,7 @@ void setup()
   }
   lvgl_port_init(board->getLCD(), board->getTouch());
 
+  computer_init();
   net_start();
   spotify_start();
 

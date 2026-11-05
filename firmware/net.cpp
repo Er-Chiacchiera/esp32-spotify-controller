@@ -1,5 +1,7 @@
 #include "net.h"
 
+#include "computer.h"
+
 #include <Arduino.h>
 #include <WiFi.h>
 #include <WebServer.h>
@@ -398,6 +400,7 @@ static void run_station(const String &ssid, const String &pass)
       if (connected) {
         ArduinoOTA.handle();
         info_handle();
+        computer_poll();
       }
       vTaskDelay(pdMS_TO_TICKS(100));
     }

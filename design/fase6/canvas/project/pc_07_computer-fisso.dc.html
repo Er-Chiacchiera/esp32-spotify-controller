@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Computer 07 · Computer fisso</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./ui.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="scr">
+  <nav class="rail v2" aria-label="Navigazione">
+    <button class="np" aria-label="Apri Now playing"><div class="cv v5"></div></button>
+    <button class="pp" aria-label="Pausa"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf04c;</i></button>
+    <button class="nx" aria-label="Brano successivo"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf051;</i></button>
+    <span class="sp"></span>
+    <button class="it on" style="top: 200px" aria-label="Home"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf015;</i></button>
+    <button class="it" style="top: 256px" aria-label="Ascolti"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf025;</i></button>
+    <button class="it" style="top: 312px" aria-label="Libreria"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf02d;</i></button>
+    <button class="it" style="top: 368px" aria-label="Cerca"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf002;</i></button>
+    <button class="it" style="top: 424px" aria-label="Dispositivi"><i class="fa" style="color: #1DB954; font-size: 28px; height: 28px" aria-hidden="true">&#xf108;</i></button>
+  </nav>
+
+  <button class="back" aria-label="Indietro"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <div class="ttl wb s24 d1" style="width: 364px">PC dello studio</div>
+  <div class="a m16 t3" style="left: 536px; top: 21px; width: 240px; display: flex; justify-content: flex-end; gap: 8px; align-items: center"><i class="dot" style="width: 10px; height: 10px; background: #5CC48A"></i><span>collegato</span></div>
+
+  <div class="wpan ab" style="left: 104px; top: 72px; width: 672px; height: 136px">
+    <span class="s20" style="left: 20px; top: 15px; height: 28px; display: flex; gap: 12px; align-items: center"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf1e6;</i><span>Alimentazione</span></span>
+    <span class="m20" style="left: 20px; top: 60px">Senza batteria</span>
+    <span class="m16 t2" style="left: 20px; top: 88px">Computer fisso, collegato alla corrente.</span>
+  </div>
+  <div class="wcard" style="left: 104px; top: 216px; width: 216px; height: 140px">
+    <span class="m16 t2" style="left: 16px; top: 15px; height: 22px; display: flex; gap: 8px; align-items: center"><i class="fa" style="color: #B3B3B3; font-size: 20px; height: 20px" aria-hidden="true">&#xf2db;</i><span>Processore</span></span>
+    <span class="s30" style="left: 16px; top: 44px">12%</span>
+    <span class="seg" style="left: 16px; top: 92px; width: 184px; height: 8px; border-radius: 4px; background: #3A3A3A"></span>
+    <span class="seg" style="left: 16px; top: 92px; width: 22px; height: 8px; border-radius: 4px; background: #B3B3B3"></span>
+    <span class="m16 t3 d1" style="left: 16px; top: 108px; width: 184px">in uso</span>
+  </div>
+  <div class="wcard" style="left: 332px; top: 216px; width: 216px; height: 140px">
+    <span class="m16 t2" style="left: 16px; top: 15px; height: 22px; display: flex; gap: 8px; align-items: center"><i class="fa" style="color: #B3B3B3; font-size: 20px; height: 20px" aria-hidden="true">&#xf538;</i><span>Memoria</span></span>
+    <span class="s30" style="left: 16px; top: 44px">41%</span>
+    <span class="seg" style="left: 16px; top: 92px; width: 184px; height: 8px; border-radius: 4px; background: #3A3A3A"></span>
+    <span class="seg" style="left: 16px; top: 92px; width: 75px; height: 8px; border-radius: 4px; background: #B3B3B3"></span>
+    <span class="m16 t3 d1" style="left: 16px; top: 108px; width: 184px">in uso · 59% libera</span>
+  </div>
+  <div class="wcard" style="left: 560px; top: 216px; width: 216px; height: 140px">
+    <span class="m16 t2" style="left: 16px; top: 15px; height: 22px; display: flex; gap: 8px; align-items: center"><i class="fa" style="color: #B3B3B3; font-size: 20px; height: 20px" aria-hidden="true">&#xf0a0;</i><span>Disco</span></span>
+    <span class="s30" style="left: 16px; top: 44px">612 GB</span>
+    <span class="seg" style="left: 16px; top: 92px; width: 184px; height: 8px; border-radius: 4px; background: #3A3A3A"></span>
+    <span class="seg" style="left: 16px; top: 92px; width: 71px; height: 8px; border-radius: 4px; background: #B3B3B3"></span>
+    <span class="m16 t3 d1" style="left: 16px; top: 108px; width: 184px">liberi su 1000 GB</span>
+  </div>
+  <div class="wcard" style="left: 104px; top: 364px; width: 332px; height: 100px">
+    <span class="m16 t2" style="left: 16px; top: 15px; height: 22px; display: flex; gap: 8px; align-items: center"><i class="fa" style="color: #B3B3B3; font-size: 20px; height: 20px" aria-hidden="true">&#xf025;</i><span>Cuffie</span></span>
+    <span class="m20 t2" style="left: 16px; top: 44px">Nessuna cuffia</span>
+    <span class="m16 t3" style="left: 16px; top: 72px">Le AirPods mostrano qui la batteria.</span>
+  </div>
+  <div class="wcard" style="left: 444px; top: 364px; width: 332px; height: 100px">
+    <span class="m16 t2" style="left: 16px; top: 15px; height: 22px; display: flex; gap: 8px; align-items: center"><i class="fa" style="color: #B3B3B3; font-size: 20px; height: 20px" aria-hidden="true">&#xf2c9;</i><span>Sistema</span></span>
+    <span class="s20 d1" style="left: 16px; top: 44px; width: 300px">Acceso da 5 ore</span>
+    <span class="m16 t3" style="left: 16px; top: 72px">Temperatura normale</span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":800,"height":480}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

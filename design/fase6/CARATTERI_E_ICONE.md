@@ -136,3 +136,14 @@ Le immagini della luna occupano 108 KB e non 16: 8 fasi a 64×64 con trasparenza
 |---|---|
 | `font_ic_28` | + cuffie `0xF025` (`IC_HEADPHONES`), ingranaggio `0xF013` (`IC_COG`), chevron-right `0xF054`, wifi `0xF1EB`, info-circle `0xF05A` (`IC_INFO`) |
 | `font_ic_20` | + cuffie `0xF025` |
+
+## 6. Computer (aggiunto il 5 novembre 2026, `design/computer/SPEC_COMPUTER.md` §8)
+
+| File | Contenuto |
+|---|---|
+| `font_ic_20` | + laptop `0xF109` (`IC_LAPTOP`), batterie `0xF240`-`0xF244` (`IC_BATTERY_FULL` e seguenti, elenco in `ui_computer.cpp`), microchip `0xF2DB` (`IC_MICROCHIP`), memory `0xF538` (`IC_MEMORY`), hdd `0xF0A0` (`IC_HDD`), thermometer-half `0xF2C9` (`IC_THERMOMETER`) |
+| `font_ic_28` | + laptop `0xF109`, batterie `0xF240`-`0xF244`, plug `0xF1E6` (`IC_PLUG`) |
+| `font_ic_40` | + laptop `0xF109` |
+| `font_temp_64` | + percento `0x25` |
+
+Larghezze a 20 px: laptop, batterie e memory 25 px, hdd e desktop 22,5, thermometer 10. L'etichetta dei riquadri piccoli parte 8 px dopo l'icona, mai prima di x 44. Firmware a 2 323 602 byte (73% della partizione).

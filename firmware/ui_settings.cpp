@@ -1,20 +1,28 @@
-// Impostazioni (SPEC_HOME_GIORNI §6): righe 712x80 da y 64, una per argomento. Barra con la Home accesa.
+// Impostazioni (SPEC_HOME_GIORNI §6, SPEC_COMPUTER §4): righe 712x80 da y 64, una per argomento. Barra con la Home accesa.
 #include <Arduino.h>
 #include <esp_app_desc.h>
+#include "computer.h"
 #include "net.h"
 #include "ui.h"
 #include "ui_common.h"
+#include "ui_computer.h"
 #include "ui_list.h"
 #include "ui_views.h"
 
 class SettingsView : public View {
   Header header;
-  lv_obj_t *wifi_sub = nullptr, *info_sub = nullptr;
+  lv_obj_t *wifi_sub = nullptr, *computer_sub = nullptr, *info_sub = nullptr;
   uint32_t ticks = 0;
 
-  lv_obj_t *make_row(lv_obj_t *root, int i, const char *icon, const char *title)
+  lv_obj_t *make_row(lv_obj_t *root, int i, const char *icon, const char *title, lv_event_cb_t cb = nullptr)
   {
-    lv_obj_t *row = ui_make_box(root, 0, 64 + i * 80, 712, 80, COL_BG);
+    lv_obj_t *row;
+    if (cb) {  // tutta la riga si tocca (premuta: fondo PRESSED)
+      row = ui_make_touch(root, 0, 64 + i * 80, 712, 80, COL_PRESSED);
+      lv_obj_add_event_cb(row, cb, LV_EVENT_CLICKED, nullptr);
+    } else {
+      row = ui_make_box(root, 0, 64 + i * 80, 712, 80, COL_BG);
+    }
     lv_obj_t *circle = ui_make_box(row, 16, 12, 56, 56, COL_SURFACE, LV_RADIUS_CIRCLE);
     lv_obj_center(ui_make_label(circle, &font_ic_28, COL_TEXT_2, icon));
     lv_obj_set_pos(ui_make_label(row, &font_it_sb20, COL_TEXT, title), 88, 15);
@@ -32,6 +40,11 @@ class SettingsView : public View {
     } else {
       ui_set_text_raw(wifi_sub, "Non collegato");
     }
+    ComputerStatus c;
+    computer_get(&c);
+    char text[96];
+    computer_settings_text(c, text, sizeof(text));
+    ui_set_text_raw(computer_sub, text);
     char sha[17];
     esp_app_get_elf_sha256(sha, sizeof(sha));
     if (st.state == NET_CONNECTED) ui_set_text(info_sub, "Firmware %s \xC2\xB7 IP %s", sha, st.ip);
@@ -51,7 +64,9 @@ public:
     lv_obj_t *btn = ui_make_button(wifi, BTN_SECONDARY, 512, 16, 176, 48, nullptr, "Cambia Wi-Fi",
                                    [](lv_event_t *e) { ui_ask_forget_wifi(); });
     lv_obj_set_style_border_color(btn, COL_PLACEHOLDER_FG, 0);
-    lv_obj_t *info = make_row(root, 1, IC_INFO, "Informazioni");
+    lv_obj_t *computer = make_row(root, 1, IC_LAPTOP, "Computer", [](lv_event_t *e) { nav_push(view_computer()); });
+    computer_sub = ui_make_line_label(computer, &font_it_16, COL_TEXT_2, 88, 43, 600);
+    lv_obj_t *info = make_row(root, 2, IC_INFO, "Informazioni");
     info_sub = ui_make_line_label(info, &font_it_16, COL_TEXT_2, 88, 43, 600);
     refresh();
   }
@@ -64,7 +79,7 @@ public:
   void destroyed() override
   {
     header = Header();
-    wifi_sub = info_sub = nullptr;
+    wifi_sub = computer_sub = info_sub = nullptr;
   }
 };
 

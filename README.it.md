@@ -24,6 +24,7 @@ Le foto sono prese direttamente dalla scheda.
   - **meteo** di adesso e delle prossime ore, da [Open-Meteo](https://open-meteo.com/) (gratuito, senza chiave). La posizione si ricava dalla connessione, oppure si fissa a mano;
   - **sole e luna**: alba, tramonto, ore di luce, indice UV, fase della luna;
   - **aria**: indice europeo della qualità dell'aria, inquinanti e pollini.
+- **Stato del computer**: un piccolo programma sul Mac (`strumenti/ponte_computer.py`) manda via Wi-Fi ogni 5 secondi batteria, processore, memoria, disco e batteria delle cuffie. Un riquadro della Home mostra la batteria, oppure un avviso (batteria scarica, disco quasi pieno, caldo…); toccandolo si apre una pagina con tutti i dati.
 - **Qualsiasi giorno da 7 giorni fa a 7 giorni avanti** per meteo, sole e luna, aria (l'aria solo fino a 4 giorni avanti): con le frecce o scorrendo col dito.
 - **Brano successivo** e play/pausa sempre a portata nella barra laterale di ogni pagina.
 - **Impostazioni**: rete Wi-Fi e segnale, impronta del firmware e indirizzo IP.
@@ -129,6 +130,14 @@ Lo script chiede il client ID dell'app e apre il browser per il login. Salva cli
 
 Se il firmware nuovo si riavvia entro i primi 30 secondi collegato al Wi-Fi, la scheda torna alla versione precedente.
 
+### 8. Stato del computer (facoltativo, macOS)
+
+```bash
+python3 strumenti/ponte_computer.py
+```
+
+Va lanciato sul Mac accanto allo schermo, sulla stessa rete Wi-Fi. Usa solo comandi già presenti in macOS: niente da installare e nessuna password. Se non arrivano dati per 30 secondi, la scheda considera il computer non raggiungibile.
+
 ## Prove dal computer
 
 La scheda accetta comandi dalla porta seriale. `strumenti/comando.py` li manda e sa anche salvare le foto dello schermo:
@@ -145,6 +154,7 @@ Alcuni comandi:
 | `METEO` | stampa i dati di meteo, sole, luna e aria |
 | `METEO <lat> <lon> <città>` / `METEO AUTO` | posizione fissa / posizione ricavata dalla connessione |
 | `METEO ARIA <indice>`, `METEO POLLINI <tipo> <grani>`, `METEO LUNA <giorni>` | valori finti per le prove |
+| `COMPUTER`, `COMPUTER PROVA <dato> <valore>` | stampa lo stato del computer / valori finti per le prove |
 | `INATTIVO <s>` | finge che nessuno tocchi lo schermo da s secondi |
 
 ## Come è stato fatto

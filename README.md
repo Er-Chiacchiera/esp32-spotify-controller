@@ -24,6 +24,7 @@ The interface is in Italian (the project was made in Italy). The screenshots are
   - **weather** now and for the next hours, from [Open-Meteo](https://open-meteo.com/) (free, no key needed). The location comes from your internet connection, or you can set it;
   - **sun and moon**: sunrise, sunset, daylight, UV index, moon phase;
   - **air**: European air quality index, pollutants and pollen.
+- **Computer status**: a small program on the Mac (`strumenti/ponte_computer.py`) sends battery, CPU, memory, disk and headphone battery over Wi-Fi every 5 seconds. A home tile shows the battery, or a warning (low battery, disk almost full, heat…); tapping it opens a page with everything.
 - **Any day from 7 days ago to 7 days ahead** for weather, sun and moon, and air quality (air only up to 4 days ahead): arrows or a swipe.
 - **Next track** and play/pause always at hand in the side bar of every page.
 - **Settings**: Wi-Fi network and signal, firmware fingerprint and IP address.
@@ -129,6 +130,14 @@ The script asks for the app's client ID and opens the browser for the login. It 
 
 If the new firmware restarts within its first 30 seconds on Wi-Fi, the board goes back to the previous version.
 
+### 8. Computer status (optional, macOS)
+
+```bash
+python3 strumenti/ponte_computer.py
+```
+
+Run it on the Mac next to the screen, on the same Wi-Fi network. It uses only built-in macOS commands: nothing to install, no password. The board marks the computer as unreachable 30 seconds after the last packet.
+
 ## Testing from the computer
 
 The board accepts commands on the serial port. `strumenti/comando.py` sends them and can also save screenshots:
@@ -145,6 +154,7 @@ Some commands:
 | `METEO` | prints weather, sun, moon and air data |
 | `METEO <lat> <lon> <city>` / `METEO AUTO` | fixed location / location from the internet connection |
 | `METEO ARIA <index>`, `METEO POLLINI <type> <grains>`, `METEO LUNA <days>` | fake values for testing |
+| `COMPUTER`, `COMPUTER PROVA <field> <value>` | prints the computer status / fake values for testing |
 | `INATTIVO <s>` | pretends nobody has touched the screen for s seconds |
 
 ## How it was made

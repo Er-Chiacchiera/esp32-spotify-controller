@@ -94,6 +94,14 @@ LV_FONT_DECLARE(font_ic_40);
 #define IC_HEADPHONES "\xEF\x80\xA5"  // Ascolti (Home di Spotify della fase 7), font_ic_20/28
 #define IC_COG "\xEF\x80\x93"         // Impostazioni, font_ic_28
 #define IC_INFO "\xEF\x81\x9A"        // info-circle, font_ic_28
+// Stato del computer (SPEC_COMPUTER §8)
+#define IC_LAPTOP "\xEF\x84\x89"       // font_ic_20/28/40
+#define IC_BATTERY_FULL "\xEF\x89\x80"  // F240-F244 da piena a vuota, font_ic_20/28
+#define IC_MICROCHIP "\xEF\x8B\x9B"    // font_ic_20
+#define IC_MEMORY "\xEF\x94\xB8"       // font_ic_20
+#define IC_HDD "\xEF\x82\xA0"          // font_ic_20
+#define IC_THERMOMETER "\xEF\x8B\x89"  // thermometer-half, font_ic_20
+#define IC_PLUG "\xEF\x87\xA6"         // font_ic_28
 
 // "Domenica"… e "gennaio"… (ui.cpp)
 extern const char *const GIORNI[7];

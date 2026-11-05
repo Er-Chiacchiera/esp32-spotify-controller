@@ -6,6 +6,7 @@
 #include <math.h>
 #include <time.h>
 #include "ui_common.h"
+#include "ui_computer.h"
 #include "ui_list.h"
 #include "weather.h"
 
@@ -154,7 +155,12 @@ static lv_obj_t *small_skeleton;
 static SmallTile smalls[3];
 
 static void open_weather(lv_event_t *e) { nav_open_view(view_weather()); }
-static void open_small(lv_event_t *e) { nav_open_view(view_weather(((SmallTile *)lv_event_get_user_data(e))->tab)); }
+static const int TAB_COMPUTER = -1;  // riquadro del computer: apre la pagina Computer (SPEC_COMPUTER §2)
+static void open_small(lv_event_t *e)
+{
+  int tab = ((SmallTile *)lv_event_get_user_data(e))->tab;
+  nav_open_view(tab == TAB_COMPUTER ? view_computer() : view_weather(tab));
+}
 
 static lv_obj_t *make_group(lv_obj_t *parent, int w, int h)
 {
@@ -336,6 +342,14 @@ static void set_small(SmallTile &t, const char *icon, lv_color_t icon_color, con
     ui_set_text_raw(t.icon, icon);
     ui_set_text_color(t.icon, icon_color);
   }
+  // L'etichetta parte 8 px dopo l'icona: a 44 per quelle da 20, più in là per batteria e portatile (SPEC_COMPUTER §3)
+  int iw = 20;
+  if (!moon) {
+    lv_point_t sz;
+    lv_txt_get_size(&sz, icon, &font_ic_20, 0, 0, LV_COORD_MAX, LV_TEXT_FLAG_NONE);
+    iw = max(20, (int)sz.x);
+  }
+  if (lv_obj_get_x(t.label) != 16 + iw + 8) lv_obj_set_x(t.label, 16 + iw + 8);
   ui_set_text_raw(t.label, label);
   ui_set_text_raw(t.value, value);
   ui_set_text_raw(t.detail, detail);
@@ -343,7 +357,7 @@ static void set_small(SmallTile &t, const char *icon, lv_color_t icon_color, con
 
 static void update_smalls(const Weather &w, WeatherState st, int di, bool can_open)
 {
-  static char shown[160] = "-";
+  static char shown[256] = "-";
   static bool shown_open = false;
 
   WeatherState ast = air_state(w.air);
@@ -366,11 +380,17 @@ static void update_smalls(const Weather &w, WeatherState st, int di, bool can_op
   bool air = ast == WX_OK || ast == WX_OLD;
   int level = air ? air_level(w.air.aqi) : 0;
   int pollen = air ? pollen_top(w.air) : 0;
+  ComputerStatus cs;
+  computer_get(&cs);
+  ComputerTile pc;
+  bool computer = computer_tile(cs, &pc);
 
   // Si ridisegna solo se cambia una voce (SPEC_SOLE_ARIA §3.4)
-  char sig[160];
-  snprintf(sig, sizeof(sig), "%d|%d,%d,%d,%d|%d,%d,%d|%d|%d,%d", loading, sun, kind, ev, light, air, level, w.air.aqi,
-           pollen, moon.phase, moon.lit);
+  char sig[256];
+  snprintf(sig, sizeof(sig), "%d|%d,%d,%d,%d|%d,%d,%d|%d|%d,%d|%d,%s,%06lx,%s,%s", loading, sun, kind, ev, light, air,
+           level, w.air.aqi, pollen, moon.phase, moon.lit, computer, computer ? pc.icon : "",
+           computer ? (unsigned long)lv_color_to32(pc.color) & 0xFFFFFF : 0UL, computer ? pc.value : "",
+           computer ? pc.detail : "");
   if (!strcmp(sig, shown) && can_open == shown_open) return;
   strlcpy(shown, sig, sizeof(shown));
   shown_open = can_open;
@@ -391,7 +411,10 @@ static void update_smalls(const Weather &w, WeatherState st, int di, bool can_op
       snprintf(detail, sizeof(detail), "indice %d", w.air.aqi);
       set_small(smalls[n++], IC_WIND, aq_color(level), nullptr, "Aria", air_level_text(level), detail, WT_AIR);
     }
-    if (air && pollen >= 2) {
+    // Priorità (SPEC_COMPUTER §3.1): Sole > Aria > Computer con avviso > Pollini > Computer normale > Luna
+    if (computer && pc.alert)
+      set_small(smalls[n++], pc.icon, pc.color, nullptr, "Computer", pc.value, pc.detail, TAB_COMPUTER);
+    if (air && pollen >= 2 && n < 3) {
       // I due tipi con più grani al livello più alto: "Olivo, graminacee"
       int a = -1, b = -1;
       for (int p = 0; p < POLLEN_COUNT; p++) {
@@ -410,6 +433,8 @@ static void update_smalls(const Weather &w, WeatherState st, int di, bool can_op
       set_small(smalls[n++], IC_SPA, pollen_color(pollen), nullptr, "Pollini", pollen >= 3 ? "Alti" : "Medi", detail,
                 WT_AIR);
     }
+    if (computer && !pc.alert && n < 3)
+      set_small(smalls[n++], pc.icon, pc.color, nullptr, "Computer", pc.value, pc.detail, TAB_COMPUTER);
     if (n < 3) {
       snprintf(detail, sizeof(detail), "illuminata al %d%%", moon.lit);
       set_small(smalls[n++], nullptr, COL_TEXT, MOON_20[moon.phase], "Luna", moon_phase_text(moon.phase), detail, WT_SUN);
