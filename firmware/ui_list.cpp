@@ -580,10 +580,19 @@ void PagedList::refresh()
   ui_set_hidden(wd->skeleton, !show_skeleton);
 
   if (show_error) {
-    char title[96];
+    char title[96], text[96] = "Controlla il Wi-Fi e riprova.";
     snprintf(title, sizeof(title), "Non riesco a caricare %s", what);
-    wd->block = ui_state_block(wd->parent, x, w + (x + w + 64 <= 712 ? 64 : 0), IC_WARN, COL_WARN, title,
-                               "Controlla il Wi-Fi e riprova.", "Riprova", retry_event, this);
+    SpotifyStatus sp;
+    spotify_get_status(&sp);
+    if (error_code == 429 && sp.blocked_until) {
+      // Spotify ha fermato l'app per troppe richieste: il Wi-Fi non c'entra
+      struct tm t;
+      localtime_r(&sp.blocked_until, &t);
+      strlcpy(title, "Spotify chiede una pausa", sizeof(title));
+      snprintf(text, sizeof(text), "Troppe richieste in poco tempo. Riprova dopo le %02d:%02d.", t.tm_hour, t.tm_min);
+    }
+    wd->block = ui_state_block(wd->parent, x, w + (x + w + 64 <= 712 ? 64 : 0), IC_WARN, COL_WARN, title, text,
+                               "Riprova", retry_event, this);
   } else if (empty && empty_title) {
     wd->block = ui_state_block(wd->parent, x, w + (x + w + 64 <= 712 ? 64 : 0), empty_icon ? empty_icon : IC_NOTE,
                                COL_TEXT_2, empty_title, empty_text, empty_button, empty_cb, empty_user);

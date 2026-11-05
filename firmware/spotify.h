@@ -5,6 +5,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <time.h>
 
 enum SpotifyState {
   SP_NO_CREDENTIALS,  // manca il refresh token: lanciare strumenti/spotify_login.py
@@ -21,6 +22,9 @@ struct SpotifyStatus {
   char user_id[64];
   char error[64];
   uint32_t token_expires_in_s;  // secondi al prossimo scadere del token di accesso
+  // Spotify ha fermato l'app per troppe richieste (HTTP 429, in Development Mode anche per ore): fino a
+  // blocked_until (ora del sistema) nessuna richiesta parte. 0 se non c'è blocco.
+  time_t blocked_until;
 };
 
 struct PlayerState {

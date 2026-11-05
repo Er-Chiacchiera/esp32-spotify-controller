@@ -251,6 +251,14 @@ static void update_spotify_tile(bool wifi, const SpotifyStatus &sp, const Player
   else if (sp.state == SP_NO_CREDENTIALS) kind = SPT_OFF, sub = "Login da fare", note = "Lancia lo script di login sul computer.";
   else if (sp.state == SP_LOGIN_REQUIRED) kind = SPT_OFF, sub = "Accesso scaduto", note = "Rifai il login dal computer.";
   else if (sp.state == SP_ERROR) kind = SPT_OFF, sub = "Spotify non risponde", note = "Riprovo tra poco.";
+  else if (sp.blocked_until) {
+    // Spotify ha fermato l'app per troppe richieste (429): si dice fino a quando
+    static char until[48];
+    struct tm t;
+    localtime_r(&sp.blocked_until, &t);
+    snprintf(until, sizeof(until), "Riprovo da solo alle %02d:%02d.", t.tm_hour, t.tm_min);
+    kind = SPT_OFF, title = "Spotify in pausa", sub = "Troppe richieste in poco tempo", note = until;
+  }
   // Pronto = /me già risposto; con nessun dispositivo attivo lo stato del lettore non cambia mai versione
   else if (sp.state != SP_READY) kind = SPT_LOADING, note = "Mi collego a Spotify\xE2\x80\xA6";
   else if (p.has_playback && p.title[0]) kind = SPT_TRACK, title = p.title, sub = p.artist;

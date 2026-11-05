@@ -16,7 +16,15 @@ static const char *NVS_NAMESPACE = "spotify";
 static const char *TOKEN_URL = "https://accounts.spotify.com/api/token";
 static const char *API_BASE = "https://api.spotify.com/v1";
 static const uint32_t RENEW_MARGIN_MS = 5 * 60 * 1000;  // rinnovo 5 minuti prima della scadenza
-static const uint32_t POLL_MS = 1500;                   // stato della riproduzione
+static const uint32_t POLL_MS = 1500;                   // stato della riproduzione, con la musica che suona
+static const uint32_t POLL_IDLE_MS = 5000;              // niente in riproduzione
+static const uint32_t POLL_SCREEN_OFF_MS = 30000;       // schermo spento (12 minuti senza tocchi)
+static const uint32_t SCREEN_OFF_AFTER_MS = 12 * 60 * 1000UL;
+uint32_t lvgl_port_last_touch_ms();                     // lvgl_v8_port.cpp
+
+// Blocco di Spotify per troppe richieste (429 con Retry-After): finché dura nessuna richiesta esce, altrimenti
+// ogni tentativo può allungarlo
+static volatile uint32_t blocked_until_ms = 0;
 static const uint32_t POLL_AFTER_CMD_MS = 400;          // dopo un comando Spotify ci mette un attimo ad aggiornarsi
 static const int COVER_MAX_SIDE = 320;                  // si usa la copertina da 300 px
 static const size_t COVER_MAX_JPEG = 256 * 1024;
@@ -84,6 +92,26 @@ static void set_player_message(const char *msg)
     player.version++;
   }
   xSemaphoreGive(mutex);
+}
+
+static void set_blocked_message()
+{
+  time_t until = status.blocked_until;
+  struct tm t;
+  localtime_r(&until, &t);
+  char msg[96];
+  snprintf(msg, sizeof(msg), "Spotify chiede una pausa: troppe richieste. Riprovo alle %02d:%02d", t.tm_hour, t.tm_min);
+  set_player_message(msg);
+}
+
+// Meno richieste quando non servono: in Development Mode Spotify blocca l'app anche per ore se si esagera
+static uint32_t poll_interval()
+{
+  if (millis() - lvgl_port_last_touch_ms() >= SCREEN_OFF_AFTER_MS) return POLL_SCREEN_OFF_MS;
+  xSemaphoreTake(mutex, portMAX_DELAY);
+  bool playing = player.has_playback && player.is_playing;
+  xSemaphoreGive(mutex);
+  return playing ? POLL_MS : POLL_IDLE_MS;
 }
 
 void spotify_get_status(SpotifyStatus *out)
@@ -216,6 +244,11 @@ static int api_request(const char *method, const String &path, JsonDocument &doc
     api_http->setConnectTimeout(10000);
     api_http->setTimeout(10000);
   }
+  int32_t blocked = (int32_t)(blocked_until_ms - millis());
+  if (blocked_until_ms && blocked > 0) {
+    if (retry_after_s) *retry_after_s = blocked / 1000 + 1;
+    return 429;
+  }
   HTTPClient &http = *api_http;
   bool reused = api_client->connected();  // misura dei tempi: connessione già aperta o nuova (handshake TLS)
   uint32_t t_start = millis();
@@ -248,6 +281,14 @@ static int api_request(const char *method, const String &path, JsonDocument &doc
       Serial.printf("Spotify: tempi %s: connessione %s, attesa risposta %lu ms, lettura %u KB %lu ms, JSON %lu ms\n",
                     path.substring(0, 40).c_str(), reused ? "riusata" : "NUOVA", (unsigned long)(t_body - t_start),
                     (unsigned)(payload.length() / 1024), (unsigned long)(t_read - t_body), (unsigned long)(millis() - t_read));
+    if (code == 429) {
+      uint32_t wait = max(5L, http.header("Retry-After").toInt());
+      Serial.printf("Spotify: 429 su %s, Retry-After %lu s\n", path.substring(0, 40).c_str(), (unsigned long)wait);
+      blocked_until_ms = millis() + wait * 1000;
+      xSemaphoreTake(mutex, portMAX_DELAY);
+      status.blocked_until = time(nullptr) + wait;
+      xSemaphoreGive(mutex);
+    }
     if (retry_after_s && http.hasHeader("Retry-After")) *retry_after_s = http.header("Retry-After").toInt();
     http.end();
   } else {
@@ -496,6 +537,7 @@ static int run_command(const CmdMsg &m)
     xSemaphoreGive(mutex);
   }
   else if (code == 403) set_player_message("Comando non disponibile in questo momento");
+  else if (code == 429) set_blocked_message();
   else if (code == 200 || code == 202 || code == 204) set_player_message("");
   return code;
 }
@@ -627,7 +669,7 @@ static void spotify_task(void *arg)
   load_credentials();
   uint32_t backoff_s = 5;
   bool profile_ok = false;
-  uint32_t next_poll_ms = 0;
+  uint32_t next_poll_ms = 0, last_poll_ms = 0, last_touch_seen = 0;
   bool net_was_ok = false;
 
   while (true) {
@@ -724,6 +766,15 @@ static void spotify_task(void *arg)
     }
 
     // Miniature nel tempo libero fra un controllo dello stato e l'altro
+    // Un tocco sullo schermo dopo una pausa lunga (niente musica, schermo spento): il controllo si anticipa,
+    // ma mai più spesso di POLL_MS
+    uint32_t touch = lvgl_port_last_touch_ms();
+    if (touch != last_touch_seen) {
+      last_touch_seen = touch;
+      uint32_t soon = max<int32_t>(0, (int32_t)(last_poll_ms + POLL_MS - millis())) + millis();
+      if ((int32_t)(next_poll_ms - soon) > 0 && !(blocked_until_ms && (int32_t)(blocked_until_ms - millis()) > 0))
+        next_poll_ms = soon;
+    }
     int32_t poll_in = (int32_t)(next_poll_ms - millis());
     if (poll_in > 0) {
       if (images_process_one()) continue;
@@ -735,7 +786,8 @@ static void spotify_task(void *arg)
     {
       uint32_t retry_after_s = 0;
       int code = poll_player(&retry_after_s);
-      next_poll_ms = millis() + POLL_MS;
+      last_poll_ms = millis();
+      next_poll_ms = millis() + poll_interval();
       if (code == 200 || code == 204) {
         set_player_message("");
       } else if (code == 401) {
@@ -743,6 +795,7 @@ static void spotify_task(void *arg)
       } else if (code == 429) {
         Serial.printf("Spotify: troppe richieste, aspetto %lu s\n", (unsigned long)retry_after_s);
         next_poll_ms = millis() + max<uint32_t>(retry_after_s, 2) * 1000;
+        set_blocked_message();
       } else {
         Serial.printf("Spotify: stato riproduzione HTTP %d\n", code);
         set_player_message("Connessione a Spotify instabile, riprovo...");
@@ -758,6 +811,7 @@ static void spotify_task(void *arg)
       xSemaphoreTake(mutex, portMAX_DELAY);
       int32_t left = (int32_t)(access_expires_at_ms - millis());
       status.token_expires_in_s = left > 0 ? left / 1000 : 0;
+      if (status.blocked_until && (int32_t)(blocked_until_ms - millis()) <= 0) status.blocked_until = 0;
       xSemaphoreGive(mutex);
     }
   }
