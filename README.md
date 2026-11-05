@@ -138,6 +138,8 @@ python3 strumenti/ponte_computer.py
 
 Run it on the Mac next to the screen, on the same Wi-Fi network. It uses only built-in macOS commands: nothing to install, no password. The board marks the computer as unreachable 30 seconds after the last packet.
 
+To start it automatically at every login (a user LaunchAgent, no admin password): `python3 strumenti/avvio_automatico_mac.py`. Run it again after changing `ponte_computer.py`; `--rimuovi` removes it. If macOS asks whether python3 may find devices on the local network, allow it.
+
 ## Testing from the computer
 
 The board accepts commands on the serial port. `strumenti/comando.py` sends them and can also save screenshots:

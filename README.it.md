@@ -138,6 +138,8 @@ python3 strumenti/ponte_computer.py
 
 Va lanciato sul Mac accanto allo schermo, sulla stessa rete Wi-Fi. Usa solo comandi già presenti in macOS: niente da installare e nessuna password. Se non arrivano dati per 30 secondi, la scheda considera il computer non raggiungibile.
 
+Per farlo partire da solo a ogni accesso al Mac (un LaunchAgent dell'utente, senza password da amministratore): `python3 strumenti/avvio_automatico_mac.py`. Va rilanciato dopo ogni modifica a `ponte_computer.py`; `--rimuovi` lo toglie. Se macOS chiede se python3 può trovare dispositivi sulla rete locale, consenti.
+
 ## Prove dal computer
 
 La scheda accetta comandi dalla porta seriale. `strumenti/comando.py` li manda e sa anche salvare le foto dello schermo:
