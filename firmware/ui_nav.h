@@ -32,6 +32,8 @@ void nav_open_section(Section s);
 void nav_open_view(View *root);  // apre una schermata come radice (es. Dispositivi con comando sospeso)
 void nav_push(View *v);
 void nav_back();
+// Toglie le schermate sopra il livello depth (1 = la radice) e, se c'è, apre push sopra
+void nav_pop_to(int depth, View *push = nullptr);
 void nav_home();
 int nav_depth();
 void nav_tick();             // dal timer dell'interfaccia

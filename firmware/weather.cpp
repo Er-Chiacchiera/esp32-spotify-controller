@@ -1,7 +1,6 @@
 #include "weather.h"
 
 #include <Arduino.h>
-#include <Preferences.h>
 #include <math.h>
 #include "psram_json.h"
 #include "spotify_internal.h"
@@ -10,18 +9,29 @@
 static const uint32_t REFRESH_MS = 30 * 60 * 1000;
 static const uint32_t RETRY_MS = 2 * 60 * 1000;
 static const size_t MAX_RESPONSE = 12 * 1024;  // la previsione occupa ~1,4 KB, un giorno scelto ~3 KB
-static const char *NVS_NAMESPACE = "meteo";
 
 static SemaphoreHandle_t mutex;
 static Weather weather;
 
-// Posizione: fissata dal PC (NVS) oppure trovata dall'IP a ogni avvio. Usate solo dal task Spotify,
-// tranne location_reset che arriva dal comando seriale.
+// Posizione del meteo principale: la città predefinita, oppure la Posizione attuale stimata dall'IP.
+// Usate solo dal task Spotify, tranne location_reset che arriva dall'interfaccia e dal comando seriale.
 static bool have_location = false;
 static float lat, lon;
-static char city[32], country[4];
-static bool name_pending = false;  // nome della città ancora in inglese
+static char city[64];
 static void localize_city();
+
+// Posizione attuale (SPEC_CITTA §10.4): con il mutex, perché la legge anche l'elenco delle città
+static AutoLocation auto_loc;
+static char auto_country[4];
+static bool name_pending = false;  // nome della Posizione attuale ancora in inglese
+static volatile bool auto_wanted = false;
+static uint32_t auto_retry_ms = 0;
+
+// Città scelta al volo nella pagina a schede (§10.5), con il mutex
+static WeatherPlace place;
+static Weather place_w;              // il suo "oggi"
+static float place_w_lat = NAN, place_w_lon = NAN;
+static volatile bool place_wanted = false;
 static uint32_t next_ms = 0, air_next_ms = 0;
 static volatile bool location_reset = true;
 static volatile uint32_t age_offset_ms = 0;  // METEO ETA: finge che l'ultimo aggiornamento sia più vecchio
@@ -34,6 +44,7 @@ static const int DAY_SLOTS = 6;                      // ultimi 6 giorni per tipo
 static const uint32_t DAY_VALID_MS = 30 * 60 * 1000;
 struct DaySlot {
   time_t date;       // mezzanotte locale del giorno: resta giusta anche se passa la mezzanotte con la pagina aperta
+  float lat, lon;    // città: la memoria ha come chiave città + giorno (SPEC_CITTA §10.5)
   DayStatus status;
   uint32_t at_ms;    // ultima richiesta o risposta
   bool wanted;       // da scaricare
@@ -66,7 +77,7 @@ void weather_get(Weather *out)
   out->air.updated_ms -= air_age_offset_ms;
 }
 
-static bool get_json(const String &url, JsonDocument &doc)
+bool weather_get_json(const String &url, JsonDocument &doc)
 {
   PsramSink sink(MAX_RESPONSE);
   bool ok = image_download(url.c_str(), sink);
@@ -93,52 +104,103 @@ static String url_encode(const char *s)
   return out;
 }
 
-static bool find_location()
+static void set_auto(AutoState st)
 {
-  name_pending = false;
-  Preferences prefs;
-  prefs.begin(NVS_NAMESPACE, true);
-  bool fixed = prefs.isKey("lat");
-  if (fixed) {
-    lat = prefs.getFloat("lat");
-    lon = prefs.getFloat("lon");
-    strlcpy(city, prefs.getString("city", "").c_str(), sizeof(city));
-  }
-  prefs.end();
-  if (fixed) {
-    Serial.printf("Meteo: posizione fissata %s (%.4f, %.4f)\n", city, lat, lon);
-    return true;
-  }
+  xSemaphoreTake(mutex, portMAX_DELAY);
+  auto_loc.state = st;
+  xSemaphoreGive(mutex);
+}
 
-  // Posizione approssimata dall'IP (servizio gratuito solo in HTTP), poi il nome in italiano dal geocoding
-  // di Open-Meteo ("Naples" -> "Napoli")
+// Posizione attuale: approssimata dall'IP (servizio gratuito solo in HTTP), poi il nome in italiano dal geocoding
+// di Open-Meteo ("Naples" -> "Napoli")
+static bool find_auto()
+{
+  set_auto(AUTO_LOADING);
   JsonDocument doc(PsramAllocator::instance());
-  if (!get_json("http://ip-api.com/json/?fields=status,city,countryCode,lat,lon", doc) || doc["status"] != "success") {
+  if (!weather_get_json("http://ip-api.com/json/?fields=status,city,countryCode,lat,lon", doc) || doc["status"] != "success") {
     Serial.println("Meteo: posizione dall'IP non trovata");
+    auto_retry_ms = millis() + RETRY_MS;
+    set_auto(AUTO_FAILED);
     return false;
   }
-  lat = doc["lat"];
-  lon = doc["lon"];
-  strlcpy(city, doc["city"] | "", sizeof(city));
-  strlcpy(country, doc["countryCode"] | "", sizeof(country));
-  Serial.printf("Meteo: posizione dall'IP %s (%.4f, %.4f)\n", city, lat, lon);
+  xSemaphoreTake(mutex, portMAX_DELAY);
+  auto_loc.lat = doc["lat"];
+  auto_loc.lon = doc["lon"];
+  strlcpy(auto_loc.city, doc["city"] | "", sizeof(auto_loc.city));
+  auto_loc.state = AUTO_OK;
+  xSemaphoreGive(mutex);
+  strlcpy(auto_country, doc["countryCode"] | "", sizeof(auto_country));
+  Serial.printf("Meteo: posizione dall'IP %s (%.4f, %.4f)\n", auto_loc.city, auto_loc.lat, auto_loc.lon);
   name_pending = true;
   localize_city();
   return true;
 }
 
-// Nome in italiano; se la richiesta fallisce resta quello in inglese e si riprova dopo la prossima previsione
+// Nome in italiano della Posizione attuale; se la richiesta fallisce resta quello in inglese e si riprova dopo
+// la prossima previsione
 static void localize_city()
 {
   JsonDocument doc(PsramAllocator::instance());
-  String url = "http://geocoding-api.open-meteo.com/v1/search?count=1&language=it&format=json&name=" + url_encode(city) +
-               "&countryCode=" + country;
-  if (!get_json(url, doc)) return;
+  String url = "http://geocoding-api.open-meteo.com/v1/search?count=1&language=it&format=json&name=" +
+               url_encode(auto_loc.city) + "&countryCode=" + auto_country;
+  if (!weather_get_json(url, doc)) return;
   name_pending = false;
   if (doc["results"][0]["name"].is<const char *>()) {
-    strlcpy(city, doc["results"][0]["name"].as<const char *>(), sizeof(city));
-    Serial.printf("Meteo: nome in italiano %s\n", city);
+    xSemaphoreTake(mutex, portMAX_DELAY);
+    strlcpy(auto_loc.city, doc["results"][0]["name"].as<const char *>(), sizeof(auto_loc.city));
+    xSemaphoreGive(mutex);
+    if (cities_default() < 0) strlcpy(city, auto_loc.city, sizeof(city));
+    Serial.printf("Meteo: nome in italiano %s\n", auto_loc.city);
   }
+}
+
+// La predefinita, oppure la Posizione attuale (stimata adesso se manca)
+static bool find_location()
+{
+  int d = cities_default();
+  City c;
+  if (d >= 0 && cities_get(d, &c)) {
+    lat = c.lat;
+    lon = c.lon;
+    strlcpy(city, c.name, sizeof(city));
+    Serial.printf("Meteo: città predefinita %s (%.4f, %.4f)\n", city, lat, lon);
+    return true;
+  }
+  if (auto_loc.state != AUTO_OK && !find_auto()) return false;
+  xSemaphoreTake(mutex, portMAX_DELAY);
+  lat = auto_loc.lat;
+  lon = auto_loc.lon;
+  strlcpy(city, auto_loc.city, sizeof(city));
+  xSemaphoreGive(mutex);
+  return true;
+}
+
+void weather_auto_get(AutoLocation *out)
+{
+  xSemaphoreTake(mutex, portMAX_DELAY);
+  *out = auto_loc;
+  xSemaphoreGive(mutex);
+}
+
+void weather_auto_request()
+{
+  AutoState st = auto_loc.state;
+  if (st == AUTO_UNKNOWN || (st == AUTO_FAILED && (int32_t)(millis() - auto_retry_ms) >= 0)) {
+    auto_wanted = true;
+    work_signal();
+  }
+}
+
+// La predefinita è cambiata (cities.cpp): il meteo principale torna "in arrivo" e si riscarica subito
+void weather_default_changed()
+{
+  xSemaphoreTake(mutex, portMAX_DELAY);
+  weather.valid = weather.failed = weather.no_location = false;
+  weather.air.valid = weather.air.failed = false;
+  weather.version++;
+  xSemaphoreGive(mutex);
+  location_reset = true;
+  work_signal();
 }
 
 static int hour_of(const char *iso)  // "2026-11-04T16:00"
@@ -153,16 +215,21 @@ static int16_t minutes_of(const char *iso)  // "2026-11-04T06:46" -> 406
 
 // Inizio dell'ora di una serie oraria che parte dall'ora in corso nel fuso della posizione (timezone=auto);
 // la scheda usa il fuso italiano, quindi per l'Italia coincide con l'ora di sistema
-static time_t series_hour0(time_t now, int first_hour)
+// "2026-11-04T16:00" nell'ora del posto -> istante assoluto (utc_offset_seconds della risposta): giusto anche per
+// una città con un altro fuso orario
+static time_t iso_utc(const char *iso, int32_t utc_offset)
 {
-  time_t h0 = now - now % 3600;
-  struct tm t;
-  localtime_r(&h0, &t);
-  int shift = (first_hour - t.tm_hour + 36) % 24 - 12;  // se il server parte da un'altra ora
-  return h0 + shift * 3600;
+  int y = 1970, mo = 1, d = 1, h = 0, mi = 0;
+  if (iso) sscanf(iso, "%d-%d-%dT%d:%d", &y, &mo, &d, &h, &mi);
+  y -= mo <= 2;
+  long era = y / 400, yoe = y - era * 400;
+  long doy = (153 * (mo + (mo > 2 ? -3 : 9)) + 2) / 5 + d - 1;
+  long days = era * 146097 + yoe * 365 + yoe / 4 - yoe / 100 + doy - 719468;
+  return (time_t)days * 86400 + h * 3600 + mi * 60 - utc_offset;
 }
 
-static bool fetch_forecast()
+// Previsione di adesso, 24 ore e 3 giorni per una posizione (senza città, valid e air)
+static bool load_forecast(float la, float lo, Weather &w)
 {
   char url[400];
   snprintf(url, sizeof(url),
@@ -172,21 +239,9 @@ static bool fetch_forecast()
            "&daily=temperature_2m_max,temperature_2m_min,weather_code,precipitation_probability_max,sunrise,sunset,"
            "uv_index_max"
            "&forecast_hours=%d&forecast_days=%d&timezone=auto",
-           lat, lon, WEATHER_HOURS, WEATHER_DAYS);
-  uint32_t t0 = millis();
+           la, lo, WEATHER_HOURS, WEATHER_DAYS);
   JsonDocument doc(PsramAllocator::instance());
-  if (!get_json(url, doc) || !doc["current"]["temperature_2m"].is<float>()) {
-    Serial.println("Meteo: previsione non arrivata");
-    xSemaphoreTake(mutex, portMAX_DELAY);
-    weather.failed = true;
-    weather.version++;
-    xSemaphoreGive(mutex);
-    return false;
-  }
-
-  Weather w = {};
-  w.valid = true;
-  strlcpy(w.city, city, sizeof(w.city));
+  if (!weather_get_json(url, doc) || !doc["current"]["temperature_2m"].is<float>()) return false;
   JsonObject cur = doc["current"];
   w.temp = cur["temperature_2m"];
   w.feels = cur["apparent_temperature"];
@@ -211,10 +266,27 @@ static bool fetch_forecast()
     h.is_day = hourly["is_day"][i] | 0;
     h.rain = hourly["precipitation_probability"][i] | 0;
   }
-  time_t now = time(nullptr);
-  w.hour0 = series_hour0(now, w.hours[0].hour);
-  w.updated = now;
+  w.utc_offset = doc["utc_offset_seconds"] | 0;
+  w.hour0 = iso_utc(hourly["time"][0].as<const char *>(), w.utc_offset);
+  w.updated = time(nullptr);
   w.updated_ms = millis();
+  w.valid = true;
+  return true;
+}
+
+static bool fetch_forecast()
+{
+  uint32_t t0 = millis();
+  Weather w = {};
+  if (!load_forecast(lat, lon, w)) {
+    Serial.println("Meteo: previsione non arrivata");
+    xSemaphoreTake(mutex, portMAX_DELAY);
+    weather.failed = true;
+    weather.version++;
+    xSemaphoreGive(mutex);
+    return false;
+  }
+  strlcpy(w.city, city, sizeof(w.city));
   age_offset_ms = 0;
 
   xSemaphoreTake(mutex, portMAX_DELAY);
@@ -236,7 +308,8 @@ static float value_or_nan(JsonVariantConst v)  // pollini fuori dall'Europa: nul
   return v.is<float>() ? v.as<float>() : NAN;
 }
 
-static bool fetch_air()
+// Qualità dell'aria di adesso e delle prossime 24 ore per una posizione
+static bool load_air(float la, float lo, WeatherAir &a)
 {
   String pollens;
   for (const char *k : POLLEN_KEYS) pollens += String(",") + k;
@@ -246,19 +319,9 @@ static bool fetch_air()
            "&current=european_aqi,pm2_5,pm10,nitrogen_dioxide,ozone,european_aqi_pm2_5,european_aqi_pm10,"
            "european_aqi_nitrogen_dioxide,european_aqi_ozone%s&hourly=european_aqi%s"
            "&forecast_hours=%d&timezone=auto",
-           lat, lon, pollens.c_str(), pollens.c_str(), WEATHER_HOURS);
-  uint32_t t0 = millis();
+           la, lo, pollens.c_str(), pollens.c_str(), WEATHER_HOURS);
   JsonDocument doc(PsramAllocator::instance());
-  if (!get_json(url, doc) || !doc["current"]["european_aqi"].is<int>()) {
-    Serial.println("Meteo: qualità dell'aria non arrivata");
-    xSemaphoreTake(mutex, portMAX_DELAY);
-    weather.air.failed = true;
-    weather.version++;
-    xSemaphoreGive(mutex);
-    return false;
-  }
-
-  WeatherAir a = {};
+  if (!weather_get_json(url, doc) || !doc["current"]["european_aqi"].is<int>()) return false;
   a.valid = true;
   JsonObject cur = doc["current"];
   a.aqi = cur["european_aqi"];
@@ -278,8 +341,23 @@ static bool fetch_air()
     for (JsonVariantConst v : hourly[POLLEN_KEYS[p]].as<JsonArrayConst>())
       if (v.is<float>() && !(v.as<float>() <= a.pollen_max[p])) a.pollen_max[p] = v.as<float>();  // anche se era NAN
   }
-  a.hour0 = series_hour0(time(nullptr), hour_of(hourly["time"][0].as<const char *>()));
+  a.hour0 = iso_utc(hourly["time"][0].as<const char *>(), doc["utc_offset_seconds"] | 0);
   a.updated_ms = millis();
+  return true;
+}
+
+static bool fetch_air()
+{
+  uint32_t t0 = millis();
+  WeatherAir a = {};
+  if (!load_air(lat, lon, a)) {
+    Serial.println("Meteo: qualità dell'aria non arrivata");
+    xSemaphoreTake(mutex, portMAX_DELAY);
+    weather.air.failed = true;
+    weather.version++;
+    xSemaphoreGive(mutex);
+    return false;
+  }
   air_age_offset_ms = 0;
 
   xSemaphoreTake(mutex, portMAX_DELAY);
@@ -472,10 +550,19 @@ static void ymd(time_t date, int add_days, char *out, size_t n)
   snprintf(out, n, "%04d-%02d-%02d", t.tm_year + 1900, t.tm_mon + 1, t.tm_mday);
 }
 
+// Città dei giorni chiesti adesso: quella al volo, altrimenti la predefinita. Con il mutex.
+static void day_place(float *la, float *lo)
+{
+  *la = place.on ? place.lat : lat;
+  *lo = place.on ? place.lon : lon;
+}
+
 static int find_slot(DaySlot *slots, time_t date)
 {
+  float la, lo;
+  day_place(&la, &lo);
   for (int i = 0; i < DAY_SLOTS; i++)
-    if (slots[i].status != DAY_NONE && slots[i].date == date) return i;
+    if (slots[i].status != DAY_NONE && slots[i].date == date && slots[i].lat == la && slots[i].lon == lo) return i;
   return -1;
 }
 
@@ -500,7 +587,9 @@ void weather_day_request(DayKind kind, int offset, bool force)
       if ((int32_t)(slots[k].at_ms - slots[i].at_ms) < 0) i = k;
     }
   }
-  slots[i] = { date, DAY_LOADING, millis(), true };
+  float la, lo;
+  day_place(&la, &lo);
+  slots[i] = { date, la, lo, DAY_LOADING, millis(), true };
   day_pending = true;
   xSemaphoreGive(mutex);
   work_signal();
@@ -529,18 +618,18 @@ void weather_day_clear()
   xSemaphoreGive(mutex);
 }
 
-static void day_done(DaySlot &slot, time_t date, bool ok)
+static void day_done(DaySlot &slot, time_t date, float la, float lo, bool ok)
 {
   xSemaphoreTake(mutex, portMAX_DELAY);
   // Se nel frattempo il posto è stato preso da un altro giorno, la risposta si butta
-  if (slot.date == date && slot.status == DAY_LOADING) {
+  if (slot.date == date && slot.lat == la && slot.lon == lo && slot.status == DAY_LOADING) {
     slot.status = ok ? DAY_OK : DAY_ERROR;
     slot.at_ms = millis();
   }
   xSemaphoreGive(mutex);
 }
 
-static bool fetch_day_weather(int i, time_t date)
+static bool fetch_day_weather(int i, time_t date, float la, float lo)
 {
   char d0[12], d2[12], url[512];
   ymd(date, 0, d0, sizeof(d0));
@@ -550,10 +639,10 @@ static bool fetch_day_weather(int i, time_t date)
            "&hourly=temperature_2m,weather_code,precipitation_probability,is_day"
            "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum,"
            "sunrise,sunset,uv_index_max",
-           lat, lon, d0, d2);
+           la, lo, d0, d2);
   uint32_t t0 = millis();
   JsonDocument doc(PsramAllocator::instance());
-  bool ok = get_json(url, doc) && doc["hourly"]["temperature_2m"].is<JsonArray>();
+  bool ok = weather_get_json(url, doc) && doc["hourly"]["temperature_2m"].is<JsonArray>();
   if (ok) {
     DayWeather d = {};
     JsonObject hourly = doc["hourly"];
@@ -578,15 +667,15 @@ static bool fetch_day_weather(int i, time_t date)
       d.rain_mm10[k] = (uint16_t)lroundf((daily["precipitation_sum"][k] | 0.0f) * 10);
     }
     xSemaphoreTake(mutex, portMAX_DELAY);
-    if (wslots[i].date == date) wdata[i] = d;
+    if (wslots[i].date == date && wslots[i].lat == la && wslots[i].lon == lo) wdata[i] = d;
     xSemaphoreGive(mutex);
   }
-  day_done(wslots[i], date, ok);
+  day_done(wslots[i], date, la, lo, ok);
   Serial.printf("Meteo: giorno %s %s in %lu ms\n", d0, ok ? "arrivato" : "non arrivato", (unsigned long)(millis() - t0));
   return ok;
 }
 
-static bool fetch_day_air(int i, time_t date)
+static bool fetch_day_air(int i, time_t date, float la, float lo)
 {
   char d0[12], url[700];
   ymd(date, 0, d0, sizeof(d0));
@@ -596,10 +685,10 @@ static bool fetch_day_air(int i, time_t date)
            "http://air-quality-api.open-meteo.com/v1/air-quality?latitude=%.4f&longitude=%.4f&timezone=auto"
            "&start_date=%s&end_date=%s&hourly=european_aqi,pm2_5,pm10,nitrogen_dioxide,ozone,european_aqi_pm2_5,"
            "european_aqi_pm10,european_aqi_nitrogen_dioxide,european_aqi_ozone%s",
-           lat, lon, d0, d0, pollens.c_str());
+           la, lo, d0, d0, pollens.c_str());
   uint32_t t0 = millis();
   JsonDocument doc(PsramAllocator::instance());
-  bool ok = get_json(url, doc) && doc["hourly"]["european_aqi"].is<JsonArray>();
+  bool ok = weather_get_json(url, doc) && doc["hourly"]["european_aqi"].is<JsonArray>();
   if (ok) {
     static const char *const SUB[4] = { "european_aqi_pm2_5", "european_aqi_pm10", "european_aqi_nitrogen_dioxide",
                                         "european_aqi_ozone" };
@@ -619,12 +708,12 @@ static bool fetch_day_air(int i, time_t date)
     }
     if (ok) {
       xSemaphoreTake(mutex, portMAX_DELAY);
-      if (aslots[i].date == date) adata[i] = *a;
+      if (aslots[i].date == date && aslots[i].lat == la && aslots[i].lon == lo) adata[i] = *a;
       xSemaphoreGive(mutex);
       heap_caps_free(a);
     }
   }
-  day_done(aslots[i], date, ok);
+  day_done(aslots[i], date, la, lo, ok);
   Serial.printf("Meteo: aria del %s %s in %lu ms\n", d0, ok ? "arrivata" : "non arrivata", (unsigned long)(millis() - t0));
   return ok;
 }
@@ -636,6 +725,7 @@ static bool day_tick()
   int best = -1;
   bool air = false;
   time_t date = 0;
+  float la = 0, lo = 0;
   xSemaphoreTake(mutex, portMAX_DELAY);
   for (int k = 0; k < 2 * DAY_SLOTS; k++) {
     DaySlot &s = k < DAY_SLOTS ? wslots[k] : aslots[k - DAY_SLOTS];
@@ -649,23 +739,126 @@ static bool day_tick()
     DaySlot &s = air ? aslots[best] : wslots[best];
     s.wanted = false;
     date = s.date;
+    la = s.lat;
+    lo = s.lon;
   } else {
     day_pending = false;
   }
   xSemaphoreGive(mutex);
   if (best < 0) return false;
-  if (!have_location) {
-    day_done(air ? aslots[best] : wslots[best], date, false);
+  if (isnan(la) || (!have_location && la == lat && lo == lon)) {  // predefinita senza posizione
+    day_done(air ? aslots[best] : wslots[best], date, la, lo, false);
     return true;
   }
-  if (air) fetch_day_air(best, date);
-  else fetch_day_weather(best, date);
+  if (air) fetch_day_air(best, date, la, lo);
+  else fetch_day_weather(best, date, la, lo);
   return true;
+}
+
+// ---------- Città scelta al volo (SPEC_CITTA §10.5) ----------
+
+void weather_place_set(const WeatherPlace *p)
+{
+  bool want = false;
+  xSemaphoreTake(mutex, portMAX_DELAY);
+  if (!p) {
+    place.on = false;
+  } else {
+    place = *p;
+    place.on = true;
+    bool same = place_w_lat == p->lat && place_w_lon == p->lon;
+    bool fresh = place_w.valid && millis() - place_w.updated_ms < REFRESH_MS;
+    if (!same || !fresh) {
+      if (!same) {
+        uint32_t v = place_w.version;
+        memset(&place_w, 0, sizeof(place_w));
+        place_w.version = v + 1;
+        place_w_lat = p->lat;
+        place_w_lon = p->lon;
+      }
+      place_w.failed = place_w.air.failed = false;
+      want = true;
+    }
+  }
+  xSemaphoreGive(mutex);
+  if (want) {
+    place_wanted = true;
+    work_signal();
+  }
+}
+
+bool weather_place_get(WeatherPlace *out)
+{
+  xSemaphoreTake(mutex, portMAX_DELAY);
+  *out = place;
+  xSemaphoreGive(mutex);
+  return out->on;
+}
+
+void weather_place_weather(Weather *out)
+{
+  xSemaphoreTake(mutex, portMAX_DELAY);
+  *out = place_w;
+  xSemaphoreGive(mutex);
+}
+
+void weather_place_retry()
+{
+  xSemaphoreTake(mutex, portMAX_DELAY);
+  place_w.failed = place_w.air.failed = false;
+  place_w.version++;
+  xSemaphoreGive(mutex);
+  place_wanted = true;
+  work_signal();
+}
+
+// Oggi della città al volo: previsione e aria, una dopo l'altra
+static void fetch_place()
+{
+  xSemaphoreTake(mutex, portMAX_DELAY);
+  float la = place_w_lat, lo = place_w_lon;
+  char name[64];
+  strlcpy(name, place.name, sizeof(name));
+  xSemaphoreGive(mutex);
+  if (isnan(la)) return;
+  uint32_t t0 = millis();
+  Weather w = {};
+  bool ok = load_forecast(la, lo, w);
+  WeatherAir a = {};
+  bool air_ok = ok && load_air(la, lo, a);
+  xSemaphoreTake(mutex, portMAX_DELAY);
+  if (place_w_lat == la && place_w_lon == lo) {
+    if (ok) {
+      w.air = a;
+      w.air.failed = !air_ok;
+      strlcpy(w.city, name, sizeof(w.city));
+      w.version = place_w.version + 1;
+      place_w = w;
+    } else {
+      place_w.failed = place_w.air.failed = true;
+      place_w.version++;
+    }
+  }
+  xSemaphoreGive(mutex);
+  Serial.printf("Meteo: %s (al volo) %s in %lu ms\n", name, ok ? (air_ok ? "arrivato" : "arrivato senza aria") : "non arrivato",
+                (unsigned long)(millis() - t0));
 }
 
 bool weather_tick()
 {
   if (day_tick()) return true;
+  if (place_wanted) {
+    place_wanted = false;
+    fetch_place();
+    return true;
+  }
+  if (cities_tick()) return true;
+  if (auto_wanted) {
+    auto_wanted = false;
+    bool found = find_auto();
+    if (found && cities_default() < 0 && !have_location) location_reset = true;
+    return true;
+  }
   if (location_reset) {
     location_reset = false;
     have_location = false;
@@ -679,6 +872,7 @@ bool weather_tick()
       // invece di restare "in arrivo" (SPEC_SOLE_ARIA §3.3)
       xSemaphoreTake(mutex, portMAX_DELAY);
       weather.failed = weather.air.failed = true;
+      weather.no_location = cities_default() < 0;
       weather.version++;
       xSemaphoreGive(mutex);
     }
@@ -693,8 +887,9 @@ bool weather_tick()
 }
 
 // METEO                      stampa il meteo
-// METEO <lat> <lon> <città>  fissa la posizione (es. METEO 40.8522 14.2681 Napoli)
-// METEO AUTO                 torna alla posizione dall'IP
+// METEO <lat> <lon> <città>  aggiunge la città all'elenco e la rende predefinita (es. METEO 40.8522 14.2681 Napoli)
+// METEO AUTO                 predefinita la Posizione attuale (dall'IP)
+// METEO POSIZIONE ERRORE     come se la Posizione attuale non si trovasse (SPEC_CITTA §8)
 // Prove degli stati (SPEC_METEO §9.6), fino al prossimo aggiornamento:
 // METEO ETA <s>              l'ultimo aggiornamento risale a s secondi fa (7200-21600 dato vecchio, oltre errore)
 // METEO ARRIVO | ERRORE      come all'accensione / senza nessun dato; riprova fra 60 s
@@ -791,22 +986,51 @@ void weather_serial(const char *args)
     xSemaphoreGive(mutex);
     Serial.println("METEO_OK");
   } else if (!strcmp(args, "AUTO")) {
-    Preferences prefs;
-    prefs.begin(NVS_NAMESPACE, false);
-    prefs.clear();
-    prefs.end();
-    location_reset = true;
-    Serial.println("METEO_OK posizione dall'IP");
+    cities_set_default(-1);
+    Serial.println("METEO_OK predefinita: Posizione attuale");
+  } else if (!strcmp(args, "POSIZIONE ERRORE")) {
+    // Come se la stima dall'IP fosse fallita: riprova fra 2 minuti (o all'apertura dell'elenco dopo)
+    xSemaphoreTake(mutex, portMAX_DELAY);
+    auto_loc.state = AUTO_FAILED;
+    if (cities_default() < 0) {
+      weather.valid = weather.air.valid = false;
+      weather.failed = weather.air.failed = weather.no_location = true;
+      weather.version++;
+    }
+    xSemaphoreGive(mutex);
+    auto_retry_ms = millis() + RETRY_MS;
+    if (cities_default() < 0) {
+      have_location = false;
+      next_ms = air_next_ms = millis() + RETRY_MS;
+    }
+    Serial.println("METEO_OK posizione non trovata");
   } else if (sscanf(args, "%f %f %n", &a, &b, &n) == 2 && n > 0 && args[n]) {
-    Preferences prefs;
-    prefs.begin(NVS_NAMESPACE, false);
-    prefs.putFloat("lat", a);
-    prefs.putFloat("lon", b);
-    prefs.putString("city", args + n);
-    prefs.end();
-    location_reset = true;
-    Serial.printf("METEO_OK posizione fissata: %s\n", args + n);
+    // Aggiunge la città all'elenco e la rende predefinita (SPEC_CITTA §10.6)
+    City c = {};
+    c.id = -1;
+    strlcpy(c.name, args + n, sizeof(c.name));
+    c.lat = a;
+    c.lon = b;
+    int i = cities_add(c);
+    if (i < 0) {
+      Serial.println("METEO elenco delle citt\xC3\xA0 pieno: togline una dallo schermo");
+      return;
+    }
+    cities_set_default(i);
+    Serial.printf("METEO_OK predefinita: %s\n", c.name);
   } else {
+    // Elenco delle città
+    AutoLocation al;
+    weather_auto_get(&al);
+    static const char *const AUTO_TEXT[] = { "non stimata", "in stima", "", "non trovata" };
+    Serial.printf("METEO citt\xC3\xA0: %sPosizione attuale %s%s\n", cities_default() < 0 ? "*" : "",
+                  al.state == AUTO_OK ? al.city : "", AUTO_TEXT[al.state]);
+    for (int i = 0; i < cities_count(); i++) {
+      City c;
+      cities_get(i, &c);
+      Serial.printf("  %s%s (%s, %s, %s) %.4f %.4f\n", cities_default() == i ? "*" : "", c.name, c.admin2, c.admin1,
+                    c.country, c.lat, c.lon);
+    }
     Weather w;
     weather_get(&w);
     if (!w.valid) {

@@ -1,5 +1,5 @@
-// Meteo per l'Orologio: Open-Meteo (gratuito, senza chiave) in HTTP semplice, nessuna sessione TLS.
-// Posizione dall'IP (ip-api.com) oppure fissata dal PC con il comando seriale METEO.
+// Meteo della Home: Open-Meteo (gratuito, senza chiave) in HTTP semplice, nessuna sessione TLS.
+// Posizione: la città predefinita dell'elenco (SPEC_CITTA), oppure la Posizione attuale stimata dall'IP (ip-api.com).
 #pragma once
 
 #include <stdint.h>
@@ -44,15 +44,17 @@ struct WeatherAir {
 struct Weather {
   bool valid;             // almeno una previsione arrivata
   bool failed;            // l'ultima richiesta non è riuscita
-  char city[32];
+  char city[64];
   float temp, feels;      // adesso, °C
   uint8_t code, is_day;   // adesso
   WeatherDay days[WEATHER_DAYS];  // dal giorno della richiesta
   WeatherHour hours[WEATHER_HOURS];  // dall'ora in corso alla richiesta in poi
-  time_t hour0;           // inizio dell'ora di hours[0] (ora locale = ora del sistema, fuso intero)
+  time_t hour0;           // inizio dell'ora di hours[0]
+  int32_t utc_offset;     // fuso orario del posto, secondi (una città al volo può averne un altro)
   time_t updated;         // ora dell'ultimo aggiornamento riuscito
   uint32_t updated_ms;    // millis() dell'ultimo aggiornamento riuscito
   WeatherAir air;
+  bool no_location;       // Posizione attuale predefinita e non trovata (SPEC_CITTA §8)
   uint32_t version;       // cresce a ogni aggiornamento (anche dell'aria): l'interfaccia ridisegna solo se cambia
 };
 
@@ -92,7 +94,7 @@ static const char *const WX_ICON_SUN = "\xEF\x86\x85";
 static const int DAY_DAYS = 3;  // il giorno scelto e i due dopo (scheda di destra, Prossimi giorni)
 
 struct DayWeather {
-  WeatherHour hours[24];          // dalle 00:00 alle 23:00 del giorno scelto (rain 255 se manca, nel passato)
+  WeatherHour hours[24];          // dalle 00:00 alle 23:00 del giorno scelto, ora del posto (rain 255 se manca)
   WeatherDay days[DAY_DAYS];      // il giorno scelto, +1, +2
   uint16_t rain_mm10[DAY_DAYS];   // pioggia caduta, decimi di mm (precipitation_sum)
 };
@@ -109,7 +111,7 @@ struct DayAir {
 
 enum DayKind { DAY_WEATHER, DAY_AIR };
 enum DayStatus { DAY_NONE, DAY_LOADING, DAY_OK, DAY_ERROR };
-// Chiede il giorno a "offset" giorni da oggi (non 0). Se è già in memoria e valido (30 minuti) non fa niente,
+// Chiede il giorno a "offset" giorni da oggi (non 0), per la città al volo se c'è, altrimenti per la predefinita. Se è già in memoria e valido (30 minuti) non fa niente,
 // a meno di force (Riprova). Le richieste dei giorni passano prima dell'aggiornamento periodico.
 void weather_day_request(DayKind kind, int offset, bool force = false);
 // Stato del giorno e, se DAY_OK, i dati (out può essere nullptr)
@@ -117,6 +119,65 @@ DayStatus weather_day_get(int offset, DayWeather *out);
 DayStatus weather_day_get_air(int offset, DayAir *out);
 // Uscendo dalla pagina la memoria dei giorni si svuota
 void weather_day_clear();
+
+// ---------- Città del meteo (SPEC_CITTA §10, cities.cpp) ----------
+
+static const int CITY_MAX = 8;
+static const int CITY_RESULTS = 10;
+struct City {
+  int32_t id;                                // id di Open-Meteo (-1 se aggiunta dal comando seriale)
+  char name[64];
+  char admin2[48], admin1[48], country[48];  // provincia, regione, nazione ("" se mancano)
+  float lat, lon;
+  uint32_t population;                       // 0 se manca
+};
+// Città salvate (NVS), nell'ordine in cui sono state aggiunte. Predefinita: indice, -1 = Posizione attuale.
+void cities_init();
+int cities_count();
+bool cities_get(int i, City *out);
+int cities_default();
+void cities_set_default(int i);     // il meteo principale si riscarica per la città nuova
+int cities_add(const City &c);      // indice della città (anche se c'era già), -1 se l'elenco è pieno
+int cities_find(int32_t id);
+void cities_remove(int i);          // se era la predefinita, torna la Posizione attuale
+uint32_t cities_version();          // cresce a ogni cambio dell'elenco o della predefinita
+
+// Ricerca con il geocoding di Open-Meteo, al massimo CITY_RESULTS risultati
+enum CitySearchState { CS_IDLE, CS_LOADING, CS_OK, CS_ERROR };
+void city_search(const char *text);
+CitySearchState city_search_get(City *out, int *count);  // out: CITY_RESULTS posti (o nullptr)
+
+// Temperatura di adesso di tutte le città dell'elenco, con una richiesta sola (§10.3)
+struct CityNow {
+  bool valid;
+  int8_t temp;
+  uint8_t code, is_day;
+};
+void cities_now_request();                 // se i dati hanno più di 30 minuti o manca una città
+bool cities_now_get(int i, CityNow *out);  // i = -1: Posizione attuale
+bool cities_tick();                        // dal task Spotify (weather_tick): una richiesta se serve
+
+// Posizione attuale, stimata dalla rete
+enum AutoState { AUTO_UNKNOWN, AUTO_LOADING, AUTO_OK, AUTO_FAILED };
+struct AutoLocation {
+  AutoState state;
+  float lat, lon;
+  char city[32];
+};
+void weather_auto_get(AutoLocation *out);
+void weather_auto_request();  // la stima, se manca (dopo un errore si riprova ogni 2 minuti)
+
+// Città scelta al volo nella pagina a schede (§10.5): vale per i giorni scelti e per il suo "oggi",
+// che si chiede a parte (previsione + aria) e non tocca il meteo principale. nullptr: la predefinita.
+struct WeatherPlace {
+  bool on;
+  float lat, lon;
+  char name[64];
+};
+void weather_place_set(const WeatherPlace *p);
+bool weather_place_get(WeatherPlace *out);  // false se non c'è
+void weather_place_weather(Weather *out);   // oggi della città al volo (stati come il meteo principale)
+void weather_place_retry();
 
 void weather_init();
 void weather_get(Weather *out);

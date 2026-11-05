@@ -5,6 +5,7 @@
 #include <climits>
 #include <math.h>
 #include <time.h>
+#include "ui_cities.h"
 #include "ui_common.h"
 #include "ui_computer.h"
 #include "ui_list.h"
@@ -36,10 +37,23 @@ static int pollen_top(const WeatherAir &a)
   return top;
 }
 
+// Ore del posto per una città scelta al volo con un altro fuso (SPEC_CITTA §7); INT32_MIN: quelle della scheda
+static int32_t place_tz = INT32_MIN;
+
+static void clock_of(time_t t, struct tm *out)
+{
+  if (place_tz == INT32_MIN) {
+    localtime_r(&t, out);
+  } else {
+    t += place_tz;
+    gmtime_r(&t, out);
+  }
+}
+
 static int minutes_now(time_t now)
 {
   struct tm t;
-  localtime_r(&now, &t);
+  clock_of(now, &t);
   return t.tm_hour * 60 + t.tm_min;
 }
 
@@ -87,7 +101,7 @@ static long deg(float t) { return lroundf(t); }
 static const char *hhmm(time_t t, char *out, size_t n)
 {
   struct tm tm;
-  localtime_r(&t, &tm);
+  clock_of(t, &tm);
   snprintf(out, n, "%02d:%02d", tm.tm_hour, tm.tm_min);
   return out;
 }
@@ -142,7 +156,8 @@ static int daylight(const WeatherDay &d) { return d.sunrise >= 0 && d.sunset > d
 
 // Riquadro Meteo 40,236 720x120: zona Adesso (x 0-312), 4 ore e Domani
 static lv_obj_t *tile, *now_main, *now_icon, *now_temp, *now_max, *now_min, *now_drop, *now_rain, *now_cond;
-static lv_obj_t *now_warn, *now_updated;
+static lv_obj_t *now_warn, *now_updated, *now_city_icon, *now_city;
+static lv_obj_t *err_title, *err_text, *separators[2];
 static lv_obj_t *tile_skeleton, *tile_error, *cells_main;
 static WxCell cells[5];
 
@@ -154,7 +169,14 @@ struct SmallTile {
 static lv_obj_t *small_skeleton;
 static SmallTile smalls[3];
 
-static void open_weather(lv_event_t *e) { nav_open_view(view_weather()); }
+static void open_weather(lv_event_t *e)
+{
+  // Posizione non trovata: il riquadro apre l'elenco delle città (SPEC_CITTA §8)
+  Weather w;
+  weather_get(&w);
+  if (!w.valid && w.no_location) nav_open_view(view_cities(false, 0));
+  else nav_open_view(view_weather());
+}
 static const int TAB_COMPUTER = -1;  // riquadro del computer: apre la pagina Computer (SPEC_COMPUTER §2)
 static void open_small(lv_event_t *e)
 {
@@ -184,8 +206,8 @@ void home_weather_create(lv_obj_t *panel)
 {
   tile = make_tile(panel, 40, 236, 720, 120);
   lv_obj_add_event_cb(tile, open_weather, LV_EVENT_CLICKED, nullptr);
-  ui_make_box(tile, 312, 16, 1, 88, COL_RAISED);
-  ui_make_box(tile, 632, 24, 1, 72, COL_RAISED);
+  separators[0] = ui_make_box(tile, 312, 16, 1, 88, COL_RAISED);
+  separators[1] = ui_make_box(tile, 632, 24, 1, 72, COL_RAISED);
 
   // Normale e dato vecchio
   now_main = make_group(tile, 312, 120);
@@ -206,6 +228,8 @@ void home_weather_create(lv_obj_t *panel)
   now_cond = ui_make_line_label(now_main, &font_it_20, COL_TEXT, 20, 86, 276);
   now_warn = ui_make_label(now_main, &font_ic_20, COL_WARN, IC_WARN);
   now_updated = ui_make_label(now_main, &font_it_16, COL_TEXT_2, "");
+  now_city_icon = ui_make_label(now_main, &font_ic_20, COL_TEXT_3, IC_MARKER);
+  now_city = ui_make_label(now_main, &font_it_16, COL_TEXT_2, "");
   cells_main = make_group(tile, 720, 120);
   for (int i = 0; i < 4; i++) cells[i].create(cells_main, 352 + i * 80, 4, 80);
   cells[4].create(cells_main, 676, 4, 88);
@@ -227,9 +251,10 @@ void home_weather_create(lv_obj_t *panel)
   // Errore: il riquadro resta, vuoto tranne la nuvola spenta e due righe
   tile_error = make_group(tile, 720, 120);
   lv_obj_set_pos(ui_make_label(tile_error, &font_wx_56, COL_DISABLED_FG, weather_icon(3, true)), 20, 32);
-  lv_obj_set_pos(ui_make_label(tile_error, &font_it_20, COL_TEXT_2, "Meteo non disponibile"), 100, 34);
-  // Dopo un errore weather.cpp riprova ogni 2 minuti: "tra poco" (SPEC_METEO §3.4)
-  lv_obj_set_pos(ui_make_label(tile_error, &font_it_16, COL_TEXT_3, "Riprovo tra poco"), 100, 62);
+  err_title = ui_make_label(tile_error, &font_it_20, COL_TEXT_2, "");
+  lv_obj_set_pos(err_title, 100, 34);
+  err_text = ui_make_label(tile_error, &font_it_16, COL_TEXT_3, "");
+  lv_obj_set_pos(err_text, 100, 62);
 
   // Riquadri piccoli: icona 20, etichetta, valore SB20, dettaglio
   for (int i = 0; i < 3; i++) {
@@ -305,7 +330,22 @@ static void update_now(const Weather &w, WeatherState st, int hi, int di)
   bool old = st == WX_OLD;
   ui_set_hidden(now_warn, !old);
   ui_set_hidden(now_updated, !old);
-  lv_obj_set_width(now_cond, old ? 180 : 276);
+  // Predefinita diversa dalla Posizione attuale: segnaposto + nome dopo la condizione, se non c'è l'avviso
+  // (SPEC_CITTA §8)
+  bool show_city = !old && cities_default() >= 0 && w.city[0];
+  ui_set_hidden(now_city_icon, !show_city);
+  ui_set_hidden(now_city, !show_city);
+  int cond_w = old ? 180 : 276;
+  if (show_city) {
+    char name[64];
+    fit_text(&font_it_16, w.city, 120, name, sizeof(name));
+    ui_set_text_raw(now_city, name);
+    int iw = text_w(&font_ic_20, IC_MARKER), nw = text_w(&font_it_16, name);
+    cond_w = min(276 - 8 - iw - 4 - nw, text_w(&font_it_20, weather_text(code)));
+    place(now_city_icon, 20 + cond_w + 8, 89);
+    place(now_city, 20 + cond_w + 8 + iw + 4, 89);
+  }
+  lv_obj_set_width(now_cond, cond_w);
   if (old) {
     char buf[8];
     ui_set_text_raw(now_updated, hhmm(w.updated, buf, sizeof(buf)));
@@ -471,11 +511,16 @@ void home_weather_update(bool can_open)
   shown_open = can_open;
 
   bool data = st == WX_OK || st == WX_OLD;
+  bool no_location = st == WX_ERROR && w.no_location;
   ui_set_hidden(now_main, !data);
   ui_set_hidden(cells_main, !data);
   ui_set_hidden(tile_skeleton, st != WX_LOADING);
   ui_set_hidden(tile_error, st != WX_ERROR);
-  set_clickable(tile, data && can_open);
+  for (lv_obj_t *sep : separators) ui_set_hidden(sep, st == WX_ERROR);  // l'errore occupa tutto il riquadro
+  // Dopo un errore weather.cpp riprova ogni 2 minuti: "tra poco" (SPEC_METEO §3.4)
+  ui_set_text_raw(err_title, no_location ? "Posizione non trovata" : "Meteo non disponibile");
+  ui_set_text_raw(err_text, no_location ? "Tocca per scegliere una citt\xC3\xA0" : "Riprovo tra poco");
+  set_clickable(tile, (data || no_location) && can_open);
   if (!data) return;
   update_now(w, st, hi, di);
   update_cells(w, hi, di);
@@ -584,6 +629,10 @@ class WeatherView : public View {
   lv_obj_t *sun_marker = nullptr;
   int marker_q = -1;
   uint32_t ticks = 0;
+  // Città scelta al volo (SPEC_CITTA §7): il suo "oggi" arriva a parte, gli altri giorni dalle richieste dei giorni
+  WeatherPlace pl = {};
+  bool fly = false;
+  float built_lat = NAN, built_lon = NAN;
 
   int offset() const { return days_between(time(nullptr), sel_date); }
   DayKind kind() const { return tab == WT_AIR ? DAY_AIR : DAY_WEATHER; }
@@ -637,17 +686,21 @@ class WeatherView : public View {
       lv_obj_clear_flag(next, LV_OBJ_FLAG_CLICKABLE);
       ui_set_text_color(icon, COL_DISABLED_FG_2);
     }
-    // Nome su due righe; su un altro giorno il blocco riporta a oggi
-    lv_obj_t *name = ui_make_touch(root, CX(576), 4, 136, 56, COL_PRESSED, off != 0);
+    // Nome su due righe. Oggi il blocco apre l'elenco delle città, negli altri giorni riporta a oggi (SPEC_CITTA §7)
+    lv_obj_t *name = ui_make_touch(root, CX(576), 4, 136, 56, COL_PRESSED);
     lv_obj_set_style_radius(name, 12, 0);
-    if (off == 0) lv_obj_clear_flag(name, LV_OBJ_FLAG_CLICKABLE);
-    else lv_obj_add_event_cb(name, [](lv_event_t *e) { ((WeatherView *)lv_event_get_user_data(e))->set_day(0); },
-                             LV_EVENT_CLICKED, this);
+    lv_obj_add_event_cb(name, [](lv_event_t *e) {
+      WeatherView *v = (WeatherView *)lv_event_get_user_data(e);
+      if (v->offset() != 0) v->set_day(0);
+      else nav_push(view_cities(true, nav_depth()));
+    }, LV_EVENT_CLICKED, this);
     char buf[40];
     day_name(buf, sizeof(buf), sel_date, off);
     lv_obj_t *l1 = ui_make_label(name, &font_it_sb20, COL_TEXT, buf);
     lv_obj_align(l1, LV_ALIGN_TOP_MID, 0, 8);
-    if (off != 0) {
+    if (fly) {
+      city_row(name, true, pl.name, off == 0, COL_TEXT);  // segnaposto + nome, anche negli altri giorni
+    } else if (off != 0) {
       lv_obj_align(ui_make_label(name, &font_it_16, COL_ACCENT, "Torna a oggi"), LV_ALIGN_TOP_MID, 0, 34);
     } else if (old) {
       // Dato vecchio: avviso + ora dell'ultimo dato
@@ -658,9 +711,72 @@ class WeatherView : public View {
       label_at(name, &font_ic_20, COL_WARN, x, 35, IC_WARN);
       label_at(name, &font_it_16, COL_TEXT_2, x + text_w(&font_ic_20, IC_WARN) + 6, 34, hm);
     } else if (w.city[0]) {
-      char city[40];
-      fit_text(&font_it_16, w.city, 128, city, sizeof(city));
-      lv_obj_align(ui_make_label(name, &font_it_16, COL_TEXT_3, city), LV_ALIGN_TOP_MID, 0, 34);
+      city_row(name, false, w.city, true, COL_TEXT_3);
+    }
+  }
+
+  // Riga 2 del blocco del giorno: [segnaposto] nome [chevron-down], centrata, spazio 4, larga al massimo 124
+  static void city_row(lv_obj_t *block, bool marker, const char *city, bool chevron, lv_color_t color)
+  {
+    int mw = marker ? text_w(&font_ic_20, IC_MARKER) + 4 : 0;
+    int cw = chevron ? 4 + text_w(&font_ic_20, IC_DOWN) : 0;
+    char name[64];
+    fit_text(&font_it_16, city, 124 - mw - cw, name, sizeof(name));
+    int x = (136 - (mw + text_w(&font_it_16, name) + cw)) / 2;
+    if (marker) label_at(block, &font_ic_20, color, x, 35, IC_MARKER);
+    x += mw;
+    label_at(block, &font_it_16, color, x, 34, name);
+    if (chevron) label_at(block, &font_ic_20, color, x + text_w(&font_it_16, name) + 4, 35, IC_DOWN);
+  }
+
+  static void place_retry_cb(lv_event_t *e)
+  {
+    WeatherView *v = (WeatherView *)lv_event_get_user_data(e);
+    weather_place_retry();
+    v->loading_since = millis();
+    v->timed_out = false;
+    nav_rebuild();
+  }
+
+  // Stato del suo "oggi" per la scheda aperta: senza previsione anche l'aria è in arrivo o in errore
+  WeatherState place_state(const Weather &pw) const
+  {
+    WeatherState st = weather_state(pw);
+    return tab == WT_AIR && (st == WX_OK || st == WX_OLD) ? air_state(pw.air) : st;
+  }
+
+  // Oggi di una città scelta al volo (§7, §10.5): in arrivo come un altro giorno, poi come il meteo principale
+  void build_place_today(lv_obj_t *root)
+  {
+    Weather pw;
+    weather_place_weather(&pw);
+    built_version = pw.version;
+    WeatherState st = place_state(pw);
+    built_state = st;
+    if (pw.valid) place_tz = pw.utc_offset;
+    if (st == WX_LOADING && !timed_out) {
+      if (!loading_since) loading_since = millis();
+      if (tab == WT_WEATHER) build_weather_day(root, nullptr, 0);
+      else if (tab == WT_AIR) build_air_day(root, nullptr);
+      else build_sun(root, nullptr, 0, -1, 0);
+      return;
+    }
+    loading_since = 0;
+    if (st == WX_LOADING || st == WX_ERROR) {
+      char title[120];
+      snprintf(title, sizeof(title), tab == WT_AIR ? "Qualit\xC3\xA0 dell'aria di %s non disponibile"
+                                                   : "Meteo di %s non disponibile", pl.name);
+      ui_state_block(root, 0, 712, IC_WARN, COL_WARN, title, "Controlla la connessione, poi riprova.", "Riprova",
+                     place_retry_cb, this);
+      return;
+    }
+    if (tab == WT_WEATHER) build_weather(root, pw, st);
+    else if (tab == WT_AIR) build_air(root, pw);
+    else {
+      int di = max(0, weather_day_index(pw, time(nullptr)));
+      WeatherDay d3[3];
+      for (int k = 0; k < 3; k++) d3[k] = pw.days[min(di + k, WEATHER_DAYS - 1)];
+      build_sun(root, d3, 0, -1, 2);
     }
   }
 
@@ -1055,7 +1171,12 @@ class WeatherView : public View {
 
 public:
   explicit WeatherView(int t) : tab(t), sel_date(day_start(time(nullptr))) {}
-  ~WeatherView() override { weather_day_clear(); }  // uscendo dalla pagina il giorno si dimentica (§8.2)
+  ~WeatherView() override
+  {
+    // Uscendo dalla pagina il giorno e la città scelta al volo si dimenticano (§8.2, SPEC_CITTA §1 domanda 4)
+    weather_day_clear();
+    weather_place_set(nullptr);
+  }
   Section section() const override { return SEC_NONE; }
   bool back_goes_home() const override { return true; }
 
@@ -1077,6 +1198,14 @@ public:
       lv_obj_set_user_data(t, (void *)(intptr_t)i);
     }
 
+    place_tz = INT32_MIN;
+    fly = weather_place_get(&pl);
+    if (fly && (pl.lat != built_lat || pl.lon != built_lon)) {  // città cambiata: si riparte senza errori
+      timed_out = false;
+      loading_since = 0;
+    }
+    built_lat = fly ? pl.lat : NAN;
+    built_lon = fly ? pl.lon : NAN;
     Weather w;
     weather_get(&w);
     built_version = w.version;
@@ -1085,11 +1214,16 @@ public:
     WeatherState wst = weather_state(w);
     WeatherState ast = air_state(w.air);
     built_state = tab == WT_AIR ? ast : wst;
-    bool old = off == 0 && built_state == WX_OLD;
+    bool old = off == 0 && built_state == WX_OLD && !fly;
     uint32_t age = tab == WT_AIR ? millis() - w.air.updated_ms : millis() - w.updated_ms;
     build_selector(root, w, old, age);
 
     built_day_status = -1;
+    if (off == 0 && fly) {
+      request_at = 0;
+      build_place_today(root);
+      return;
+    }
     if (off == 0) {
       request_at = 0;
       if (tab == WT_WEATHER) build_weather(root, w, wst);
@@ -1143,6 +1277,12 @@ public:
     }
   }
 
+  void destroyed() override
+  {
+    sun_marker = nullptr;
+    place_tz = INT32_MIN;  // la Home usa sempre le ore della scheda
+  }
+
   void gesture(lv_dir_t dir) override
   {
     // Scorrere cambia giorno (a destra il giorno prima, non indietro), senza animazione (§8.2)
@@ -1172,6 +1312,18 @@ public:
       }
     }
     int off = offset();
+    if (off == 0 && fly) {
+      Weather pw;
+      weather_place_weather(&pw);
+      WeatherState st = place_state(pw);
+      if (st == WX_LOADING && loading_since && !timed_out && millis() - loading_since > 10000) {
+        timed_out = true;
+        nav_rebuild();
+      } else if (pw.version != built_version) {
+        nav_rebuild();
+      }
+      return;
+    }
     if (off != 0) {
       if (built_day_status < 0) return;
       DayStatus ds = tab == WT_AIR ? weather_day_get_air(off, nullptr) : weather_day_get(off, nullptr);
@@ -1198,7 +1350,6 @@ public:
     if (w.version != built_version || st != built_state) nav_rebuild();
   }
 
-  void destroyed() override { sun_marker = nullptr; }
 };
 
 View *view_weather(int tab) { return new WeatherView(tab); }

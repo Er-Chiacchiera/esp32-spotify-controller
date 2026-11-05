@@ -769,6 +769,7 @@ void spotify_start()
   cmd_queue = xQueueCreate(8, sizeof(CmdMsg));
   browse_init();
   weather_init();
+  cities_init();
   memset(&status, 0, sizeof(status));
   memset(&player, 0, sizeof(player));
   memset(&cover, 0, sizeof(cover));

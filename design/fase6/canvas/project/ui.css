@@ -239,3 +239,14 @@ svg{display:block;flex:none}
 .stl{position:absolute;left:576px;top:4px;width:136px;height:56px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
 .stl.pr{background:#2A2A2A}
 .fa{font-family:"FA5";font-style:normal;font-weight:900;line-height:1;display:block}
+/* Città del meteo */
+.key.go.off{background:#2A2A2A;color:#5A5A5A}
+.ibtn.ring::before{content:"";position:absolute;left:8px;top:8px;width:48px;height:48px;border-radius:24px;background:#3A3A3A;z-index:-1}
+.ibtn.ring{z-index:0;color:#FFFFFF}
+.ibtn.prc::before{content:"";position:absolute;left:8px;top:8px;width:48px;height:48px;border-radius:24px;background:#2A2A2A;z-index:-1}
+.ibtn.prc{z-index:0}
+.row .tmp{position:absolute;left:472px;top:26px;width:96px;height:28px;display:flex;justify-content:flex-end;align-items:center;gap:8px}
+.row .du.w96{width:96px}
+.row.ct .tt,.row.ct .st{right:184px}
+.row.rs .tt,.row.rs .st{right:128px}
+.ln2{display:flex;gap:4px;align-items:center;max-width:124px}

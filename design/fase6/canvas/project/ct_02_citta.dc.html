@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Città 02 · Città del meteo</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./ui.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="scr">
+  <nav class="rail v2" aria-label="Navigazione">
+    <button class="np" aria-label="Apri Now playing"><div class="cv v5"></div></button>
+    <button class="pp" aria-label="Pausa"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf04c;</i></button>
+    <button class="nx" aria-label="Brano successivo"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf051;</i></button>
+    <span class="sp"></span>
+    <button class="it on" style="top: 200px" aria-label="Home"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf015;</i></button>
+    <button class="it" style="top: 256px" aria-label="Ascolti"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf025;</i></button>
+    <button class="it" style="top: 312px" aria-label="Libreria"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf02d;</i></button>
+    <button class="it" style="top: 368px" aria-label="Cerca"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf002;</i></button>
+    <button class="it" style="top: 424px" aria-label="Dispositivi"><i class="fa" style="color: #1DB954; font-size: 28px; height: 28px" aria-hidden="true">&#xf108;</i></button>
+  </nav>
+
+  <button class="back" aria-label="Indietro"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <div class="ttl wb s24">Città del meteo</div>
+  <button class="a bs sm" style="left: 432px; top: 8px; width: 136px">Modifica</button>
+  <button class="a bp sm" style="left: 584px; top: 8px; width: 152px"><i class="fa" style="font-size: 20px; height: 20px" aria-hidden="true">&#xf067;</i>Aggiungi</button>
+
+  <div class="row ct" style="top: 64px">
+    <span class="dvi"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf124;</i></span>
+    <span class="tt s20 d1">Posizione attuale</span><span class="st m16 t2 d1">Predefinita · Roma, stimata dalla rete</span>
+    <span class="tmp"><i class="wi w28" aria-hidden="true">&#xf0c2;</i><span class="m20">16°</span></span>
+    <button class="ibtn" style="left: 576px; top: 8px" aria-label="Predefinita"><i class="fa" style="color: #1DB954; font-size: 28px; height: 28px" aria-hidden="true">&#xf005;</i></button>
+  </div>
+  <div class="row ct" style="top: 144px">
+    <span class="dvi"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf3c5;</i></span>
+    <span class="tt s20 d1">Milano</span><span class="st m16 t2 d1">Lombardia, Italia</span>
+    <span class="tmp"><i class="wi w28" aria-hidden="true">&#xf73d;</i><span class="m20">11°</span></span>
+    <button class="ibtn" style="left: 576px; top: 8px" aria-label="Rendi predefinita"><i class="fa" style="color: #535353; font-size: 28px; height: 28px" aria-hidden="true">&#xf005;</i></button>
+  </div>
+  <div class="row ct" style="top: 224px">
+    <span class="dvi"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf3c5;</i></span>
+    <span class="tt s20 d1">Reggio nell’Emilia</span><span class="st m16 t2 d1">Emilia-Romagna, Italia</span>
+    <span class="tmp"><i class="wi w28" aria-hidden="true">&#xf0c2;</i><span class="m20">12°</span></span>
+    <button class="ibtn" style="left: 576px; top: 8px" aria-label="Rendi predefinita"><i class="fa" style="color: #535353; font-size: 28px; height: 28px" aria-hidden="true">&#xf005;</i></button>
+  </div>
+  <div class="row ct" style="top: 304px">
+    <span class="dvi"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf3c5;</i></span>
+    <span class="tt s20 d1">Castelnuovo di Garfagnana</span><span class="st m16 t2 d1">Toscana, Italia</span>
+    <span class="tmp"><i class="wi w28" aria-hidden="true">&#xf740;</i><span class="m20">9°</span></span>
+    <button class="ibtn" style="left: 576px; top: 8px" aria-label="Rendi predefinita"><i class="fa" style="color: #535353; font-size: 28px; height: 28px" aria-hidden="true">&#xf005;</i></button>
+  </div>
+  <div class="row ct" style="top: 384px">
+    <span class="dvi"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf3c5;</i></span>
+    <span class="tt s20 d1">Parigi</span><span class="st m16 t2 d1">Île-de-France, Francia</span>
+    <span class="tmp"><i class="wi w28" aria-hidden="true">&#xf6c4;</i><span class="m20">10°</span></span>
+    <button class="ibtn" style="left: 576px; top: 8px" aria-label="Rendi predefinita"><i class="fa" style="color: #535353; font-size: 28px; height: 28px" aria-hidden="true">&#xf005;</i></button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":800,"height":480}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

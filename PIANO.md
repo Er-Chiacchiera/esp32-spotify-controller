@@ -107,6 +107,7 @@ Valerio ha messo in pausa lo sviluppo: queste cose restano da fare, in un ordine
 - [x] **Home generale e giorni**: fatto il 5 novembre 2026 secondo `design/home_giorni/SPEC_HOME_GIORNI.md`, foto in `design/home_giorni/schermate/`. Da provare a mano: riquadro Spotify con un brano, Now playing, barra col tocco vero.
 - [x] **Pubblicazione su GitHub**: fatta il 5 novembre 2026, https://github.com/Er-Chiacchiera/esp32-spotify-controller.
 - [x] **Stato del computer**: chiesto da Valerio il 5 novembre 2026, fatto lo stesso giorno secondo `design/computer/SPEC_COMPUTER.md` (approvata da Valerio): `strumenti/ponte_computer.py` sul Mac, `firmware/computer.cpp` (dati e avvisi), `firmware/ui_computer.cpp` (riquadro della Home, pagina Computer, riga di Impostazioni). Foto in `design/computer/schermate/`. Avvio automatico sul Mac di Valerio dal 5 novembre (`strumenti/avvio_automatico_mac.py`, LaunchAgent).
+- [x] **Città del meteo**: chiesto da Valerio il 5 novembre 2026, fatto lo stesso giorno secondo `design/citta/SPEC_CITTA.md` (approvata da Valerio): elenco di 8 città con la predefinita, ricerca, città al volo nella pagina Meteo. Foto in `design/citta/schermate/`.
 - [ ] **Copertine sulla microSD**: cache persistente delle copertine già viste (oggi 4-9 s per riscaricare quelle della Home). Serve una microSD nella scheda.
 - [ ] **Tasti multimediali via USB** (fase 9): la scheda fa da tastiera play/pausa, avanti, indietro, volume dalla porta "USB", anche senza rete.
 - [ ] **Scatola stampata in 3D** (fase 9, facoltativa).

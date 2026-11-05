@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Città 13 · Meteo di un’altra città</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./ui.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="scr">
+  <nav class="rail v2" aria-label="Navigazione">
+    <button class="np" aria-label="Apri Now playing"><div class="cv v5"></div></button>
+    <button class="pp" aria-label="Pausa"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf04c;</i></button>
+    <button class="nx" aria-label="Brano successivo"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf051;</i></button>
+    <span class="sp"></span>
+    <button class="it on" style="top: 200px" aria-label="Home"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf015;</i></button>
+    <button class="it" style="top: 256px" aria-label="Ascolti"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf025;</i></button>
+    <button class="it" style="top: 312px" aria-label="Libreria"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf02d;</i></button>
+    <button class="it" style="top: 368px" aria-label="Cerca"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf002;</i></button>
+    <button class="it" style="top: 424px" aria-label="Dispositivi"><i class="fa" style="color: #1DB954; font-size: 28px; height: 28px" aria-hidden="true">&#xf108;</i></button>
+  </nav>
+
+  <button class="back" aria-label="Indietro"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <button class="tab on" style="left: 152px; width: 104px">Meteo</button>
+  <button class="tab" style="left: 256px; width: 144px">Sole e luna</button>
+  <button class="tab" style="left: 400px; width: 104px">Aria</button>
+  <button class="stp" style="left: 512px; width: 64px; color: #FFFFFF" aria-label="Giorno prima"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf053;</i></button>
+  <button class="stl" aria-label="Scegli la città"><span class="s20">Oggi</span><span class="ln2"><i class="fa" style="color: #FFFFFF; font-size: 20px; height: 20px" aria-hidden="true">&#xf3c5;</i><span class="m16 tw d1">Milano</span><i class="fa" style="color: #FFFFFF; font-size: 20px; height: 20px" aria-hidden="true">&#xf078;</i></span></button>
+  <button class="stp" style="left: 712px; width: 64px; color: #FFFFFF" aria-label="Giorno dopo"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf054;</i></button>
+
+  <div class="wpan" style="left: 104px; top: 72px; width: 672px; height: 104px">
+    <div class="wc" style="left: -4px"><span class="lb m16">10:00</span><span class="ir"><i class="wi w28" aria-hidden="true">&#xf73d;</i><span class="m16 tb">60%</span></span><span class="tp m20">10°</span></div>
+    <div class="wc" style="left: 108px"><span class="lb m16">11:00</span><span class="ir"><i class="wi w28" aria-hidden="true">&#xf73d;</i><span class="m16 tb">60%</span></span><span class="tp m20">11°</span></div>
+    <div class="wc" style="left: 220px"><span class="lb m16">12:00</span><span class="ir"><i class="wi w28" aria-hidden="true">&#xf740;</i><span class="m16 tb">80%</span></span><span class="tp m20">11°</span></div>
+    <div class="wc" style="left: 332px"><span class="lb m16">13:00</span><span class="ir"><i class="wi w28" aria-hidden="true">&#xf740;</i><span class="m16 tb">80%</span></span><span class="tp m20">11°</span></div>
+    <div class="wc" style="left: 444px"><span class="lb m16">14:00</span><span class="ir"><i class="wi w28" aria-hidden="true">&#xf73d;</i><span class="m16 tb">50%</span></span><span class="tp m20">12°</span></div>
+    <div class="wc" style="left: 556px"><span class="lb m16">15:00</span><span class="ir"><i class="wi w28" aria-hidden="true">&#xf0c2;</i></span><span class="tp m20">12°</span></div>
+  </div>
+  <div class="wpan" style="left: 104px; top: 184px; width: 672px; height: 104px">
+    <div class="wc" style="left: -4px"><span class="lb m16">16:00</span><span class="ir"><i class="wi w28" aria-hidden="true">&#xf0c2;</i></span><span class="tp m20">11°</span></div>
+    <div class="wc" style="left: 108px"><span class="lb m16">17:00</span><span class="ir"><i class="wi w28" aria-hidden="true">&#xf0c2;</i></span><span class="tp m20">10°</span></div>
+    <div class="wc" style="left: 220px"><span class="lb m16">18:00</span><span class="ir"><i class="wi w28" aria-hidden="true">&#xf0c2;</i></span><span class="tp m20">10°</span></div>
+    <div class="wc" style="left: 332px"><span class="lb m16">19:00</span><span class="ir"><i class="wi w28" aria-hidden="true">&#xf0c2;</i></span><span class="tp m20">9°</span></div>
+    <div class="wc" style="left: 444px"><span class="lb m16">20:00</span><span class="ir"><i class="wi w28" aria-hidden="true">&#xf0c2;</i></span><span class="tp m20">9°</span></div>
+    <div class="wc" style="left: 556px"><span class="lb m16">21:00</span><span class="ir"><i class="wi w28" aria-hidden="true">&#xf75f;</i></span><span class="tp m20">8°</span></div>
+  </div>
+  <div class="wcard" style="left: 104px; top: 296px">
+    <span class="s20" style="left: 20px; top: 16px">Oggi</span>
+    <span style="left: 20px; top: 60px"><i class="wi w40" aria-hidden="true">&#xf740;</i></span>
+    <span class="m20 d1" style="left: 80px; top: 56px; width: 228px">Pioggia debole</span>
+    <span class="m16 t2" style="left: 80px; top: 84px">Min 7° · Max 12°</span>
+    <span class="m16 t2" style="left: 20px; top: 128px; display: flex; gap: 8px; align-items: center"><i class="wi w20" style="color: #6CB4F0" aria-hidden="true">&#xf043;</i><span>Pioggia <span class="tb">88%</span></span></span>
+  </div>
+  <div class="wcard" style="left: 448px; top: 296px">
+    <span class="s20" style="left: 20px; top: 16px">Domani</span>
+    <span style="left: 20px; top: 60px"><i class="wi w40" aria-hidden="true">&#xf75f;</i></span>
+    <span class="m20 d1" style="left: 80px; top: 56px; width: 228px">Nebbia</span>
+    <span class="m16 t2" style="left: 80px; top: 84px">Min 6° · Max 13°</span>
+    <span class="m16 t2" style="left: 20px; top: 128px; display: flex; gap: 8px; align-items: center"><i class="wi w20" style="color: #6CB4F0" aria-hidden="true">&#xf043;</i><span>Pioggia <span class="tb">10%</span></span></span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":800,"height":480}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

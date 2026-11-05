@@ -147,3 +147,13 @@ Le immagini della luna occupano 108 KB e non 16: 8 fasi a 64×64 con trasparenza
 | `font_temp_64` | + percento `0x25` |
 
 Larghezze a 20 px: laptop, batterie e memory 25 px, hdd e desktop 22,5, thermometer 10. L'etichetta dei riquadri piccoli parte 8 px dopo l'icona, mai prima di x 44. Firmware a 2 323 602 byte (73% della partizione).
+
+## 7. Città del meteo (aggiunto il 5 novembre 2026, `design/citta/SPEC_CITTA.md` §11)
+
+| File | Contenuto |
+|---|---|
+| `font_ic_20` | + map-marker-alt `0xF3C5` (`IC_MARKER`) |
+| `font_ic_28` | + map-marker-alt `0xF3C5`, location-arrow `0xF124` (`IC_LOCATION`), star `0xF005` (`IC_STAR`), trash `0xF1F8` (`IC_TRASH`) |
+| `font_ic_40` | + map-marker-alt `0xF3C5` |
+
+Firmware a 2 344 782 byte (74% della partizione).

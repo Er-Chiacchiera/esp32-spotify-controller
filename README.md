@@ -21,10 +21,11 @@ The interface is in Italian (the project was made in Italy). The screenshots are
 - **Search** (tracks, albums, artists, playlists), **queue** and **device picker**.
 - **Listening** (Spotify home): recently played and your most played artists and tracks.
 - **Home screen**, a dashboard of tiles: the time, a Spotify tile with ⏮ ⏯ ⏭ (Now playing opens when you tap it), and:
-  - **weather** now and for the next hours, from [Open-Meteo](https://open-meteo.com/) (free, no key needed). The location comes from your internet connection, or you can set it;
+  - **weather** now and for the next hours, from [Open-Meteo](https://open-meteo.com/) (free, no key needed). The location comes from your internet connection, or you pick a default from your list of cities;
   - **sun and moon**: sunrise, sunset, daylight, UV index, moon phase;
   - **air**: European air quality index, pollutants and pollen.
 - **Computer status**: a small program on the Mac (`strumenti/ponte_computer.py`) sends battery, CPU, memory, disk and headphone battery over Wi-Fi every 5 seconds. A home tile shows the battery, or a warning (low battery, disk almost full, heat…); tapping it opens a page with everything.
+- **Cities**: search any city with the on-screen keyboard, keep up to 8 in a list with their current temperature, star one as the default for the home screen, or look at another city on the fly from the weather page.
 - **Any day from 7 days ago to 7 days ahead** for weather, sun and moon, and air quality (air only up to 4 days ahead): arrows or a swipe.
 - **Next track** and play/pause always at hand in the side bar of every page.
 - **Settings**: Wi-Fi network and signal, firmware fingerprint and IP address.
@@ -154,7 +155,7 @@ Some commands:
 |---|---|
 | `TAP x y`, `LONG x y`, `SWIPE x1 y1 x2 y2` | simulated touches |
 | `METEO` | prints weather, sun, moon and air data |
-| `METEO <lat> <lon> <city>` / `METEO AUTO` | fixed location / location from the internet connection |
+| `METEO <lat> <lon> <city>` / `METEO AUTO` | adds a city and makes it the default / default back to the location from the internet connection |
 | `METEO ARIA <index>`, `METEO POLLINI <type> <grains>`, `METEO LUNA <days>` | fake values for testing |
 | `COMPUTER`, `COMPUTER PROVA <field> <value>` | prints the computer status / fake values for testing |
 | `INATTIVO <s>` | pretends nobody has touched the screen for s seconds |

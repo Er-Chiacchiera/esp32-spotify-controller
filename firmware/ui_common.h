@@ -102,6 +102,11 @@ LV_FONT_DECLARE(font_ic_40);
 #define IC_HDD "\xEF\x82\xA0"          // font_ic_20
 #define IC_THERMOMETER "\xEF\x8B\x89"  // thermometer-half, font_ic_20
 #define IC_PLUG "\xEF\x87\xA6"         // font_ic_28
+// Città del meteo (SPEC_CITTA §11)
+#define IC_MARKER "\xEF\x8F\x85"        // map-marker-alt, font_ic_20/28/40
+#define IC_LOCATION "\xEF\x84\xA4"      // location-arrow, font_ic_28
+#define IC_STAR "\xEF\x80\x85"          // font_ic_28
+#define IC_TRASH "\xEF\x87\xB8"         // font_ic_28
 
 // "Domenica"… e "gennaio"… (ui.cpp)
 extern const char *const GIORNI[7];

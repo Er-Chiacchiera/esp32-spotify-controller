@@ -96,7 +96,7 @@ static bool cp_is_alnum(uint32_t c)
 
 // Toglie i caratteri che il font non ha (giapponese, cirillico...), comprime gli spazi e i separatori
 // rimasti soli. Se non resta nessuna lettera o cifra scrive il testo di riserva (SPEC §3.5).
-static void clean_text(const char *in, char *out, size_t n, const char *fallback = nullptr, uint8_t *flags = nullptr)
+void clean_text(const char *in, char *out, size_t n, const char *fallback, uint8_t *flags)
 {
   static const int MAX_CP = 160;
   uint32_t cps[MAX_CP];

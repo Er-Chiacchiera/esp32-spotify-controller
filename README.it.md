@@ -21,10 +21,11 @@ Le foto sono prese direttamente dalla scheda.
 - **Ricerca** (brani, album, artisti, playlist), **coda** e **scelta del dispositivo**.
 - **Ascolti** (Home di Spotify): ascoltati di recente, artisti e brani più ascoltati.
 - **Home** a riquadri: l'ora, un riquadro Spotify con ⏮ ⏯ ⏭ (toccandolo si apre la schermata del brano), e:
-  - **meteo** di adesso e delle prossime ore, da [Open-Meteo](https://open-meteo.com/) (gratuito, senza chiave). La posizione si ricava dalla connessione, oppure si fissa a mano;
+  - **meteo** di adesso e delle prossime ore, da [Open-Meteo](https://open-meteo.com/) (gratuito, senza chiave). La posizione si ricava dalla connessione, oppure è la città predefinita del tuo elenco;
   - **sole e luna**: alba, tramonto, ore di luce, indice UV, fase della luna;
   - **aria**: indice europeo della qualità dell'aria, inquinanti e pollini.
 - **Stato del computer**: un piccolo programma sul Mac (`strumenti/ponte_computer.py`) manda via Wi-Fi ogni 5 secondi batteria, processore, memoria, disco e batteria delle cuffie. Un riquadro della Home mostra la batteria, oppure un avviso (batteria scarica, disco quasi pieno, caldo…); toccandolo si apre una pagina con tutti i dati.
+- **Città**: cerchi qualsiasi città con la tastiera sullo schermo, ne tieni fino a 8 in un elenco con la temperatura di adesso, con la stella scegli la predefinita della Home, e dalla pagina Meteo guardi un'altra città al volo.
 - **Qualsiasi giorno da 7 giorni fa a 7 giorni avanti** per meteo, sole e luna, aria (l'aria solo fino a 4 giorni avanti): con le frecce o scorrendo col dito.
 - **Brano successivo** e play/pausa sempre a portata nella barra laterale di ogni pagina.
 - **Impostazioni**: rete Wi-Fi e segnale, impronta del firmware e indirizzo IP.
@@ -154,7 +155,7 @@ Alcuni comandi:
 |---|---|
 | `TAP x y`, `LONG x y`, `SWIPE x1 y1 x2 y2` | tocchi simulati |
 | `METEO` | stampa i dati di meteo, sole, luna e aria |
-| `METEO <lat> <lon> <città>` / `METEO AUTO` | posizione fissa / posizione ricavata dalla connessione |
+| `METEO <lat> <lon> <città>` / `METEO AUTO` | aggiunge una città e la rende predefinita / torna predefinita la posizione ricavata dalla connessione |
 | `METEO ARIA <indice>`, `METEO POLLINI <tipo> <grani>`, `METEO LUNA <giorni>` | valori finti per le prove |
 | `COMPUTER`, `COMPUTER PROVA <dato> <valore>` | stampa lo stato del computer / valori finti per le prove |
 | `INATTIVO <s>` | finge che nessuno tocchi lo schermo da s secondi |

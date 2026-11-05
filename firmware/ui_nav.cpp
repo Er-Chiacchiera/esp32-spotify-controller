@@ -17,10 +17,11 @@ static bool browsing = false;
 
 // Le operazioni di navigazione partono dagli eventi dei widget che verranno cancellati:
 // si eseguono subito dopo, fuori dall'evento (lv_async_call)
-enum OpKind { OP_NONE, OP_PUSH, OP_BACK, OP_SECTION, OP_ROOT_VIEW, OP_HOME, OP_REBUILD };
+enum OpKind { OP_NONE, OP_PUSH, OP_BACK, OP_SECTION, OP_ROOT_VIEW, OP_HOME, OP_REBUILD, OP_POP_TO };
 static OpKind op = OP_NONE;
 static View *op_view = nullptr;
 static Section op_section;
+static int op_depth;
 
 // Barra laterale (SPEC_HOME_GIORNI §4): copertina, play/pausa, Avanti, poi Home della scheda e le sezioni
 // di Spotify. La Coda non ha voce: si apre da Now playing.
@@ -137,6 +138,13 @@ static void run_op(void *)
     case OP_REBUILD:
       show_top();
       break;
+    case OP_POP_TO:
+      destroy_widgets();
+      while (depth > max(op_depth, 1)) delete stack[--depth];
+      if (v && depth < MAX_DEPTH) stack[depth++] = v;
+      else delete v;
+      show_top();
+      break;
     default: break;
   }
 }
@@ -154,6 +162,12 @@ void nav_push(View *v) { schedule(OP_PUSH, v); }
 void nav_open_view(View *root) { schedule(OP_ROOT_VIEW, root); }
 void nav_home() { schedule(OP_HOME); }
 void nav_rebuild() { schedule(OP_REBUILD); }
+
+void nav_pop_to(int d, View *push)
+{
+  op_depth = d;
+  schedule(OP_POP_TO, push);
+}
 int nav_depth() { return depth; }
 bool nav_browsing() { return browsing; }
 lv_obj_t *nav_panel() { return panel; }

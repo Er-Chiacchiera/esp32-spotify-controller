@@ -24,6 +24,8 @@ void image_conn_close();      // chiude la connessione verso il server delle imm
 class PsramSink;
 // Scarica un'immagine pubblica (copertine di Spotify) in HTTP semplice, connessione tenuta aperta
 bool image_download(const char *url, PsramSink &sink);
+// Toglie i caratteri che i font non hanno (anche per i nomi delle città del meteo)
+void clean_text(const char *in, char *out, size_t n, const char *fallback = nullptr, uint8_t *flags = nullptr);
 void work_signal();           // sveglia il task Spotify (nuovo comando, richiesta o miniatura)
 void work_wait(uint32_t ms);
 
