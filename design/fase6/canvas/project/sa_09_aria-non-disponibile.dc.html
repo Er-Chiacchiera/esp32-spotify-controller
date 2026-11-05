@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Sole e aria 09 · Aria non disponibile</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./ui.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="scr">
+  <nav class="rail" aria-label="Navigazione">
+    <button class="np" aria-label="Niente in riproduzione"><div class="cv ph"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8.5 5.5L20 3v12.8a3 3 0 11-2-2.8V7.4l-7.5 1.6v8.8a3 3 0 11-2-2.8z"/></svg></div></button>
+    <button class="pp" aria-label="Riproduci" disabled><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l12.5-7.5z"/></svg></button>
+    <button class="it hom" aria-label="Home"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3l9.5 8H19v9.5h-5V15h-4v5.5H5V11H2.5z"/></svg></button>
+    <button class="it lib" aria-label="Libreria"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.5 3.5h3.2v17H3.5zM9 3.5h3.2v17H9zM14.3 4.6l3-1.1 4.4 15.9-3 1.1z"/></svg></button>
+    <button class="it src" aria-label="Cerca"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></button>
+    <button class="it que" aria-label="Coda"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 4.5h3v3H3zM8.5 4.5H21v3H8.5zM3 10.5h3v3H3zM8.5 10.5H21v3H8.5zM3 16.5h3v3H3zM8.5 16.5H21v3H8.5z"/></svg></button>
+    <button class="it dev" aria-label="Dispositivi"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 3h18a1 1 0 011 1v11.5a1 1 0 01-1 1H3a1 1 0 01-1-1V4a1 1 0 011-1zM9.5 17.5h5l.8 2.5H18v1.5H6V20h2.7z"/></svg></button>
+  </nav>
+
+  <button class="back" aria-label="Indietro"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <button class="tab" style="left: 152px; width: 104px">Meteo</button>
+  <button class="tab" style="left: 256px; width: 144px">Sole e luna</button>
+  <button class="tab on" style="left: 400px; width: 104px">Aria</button>
+
+  <div class="a col" style="left: 88px; top: 120px; width: 712px">
+    <div class="fx" style="width: 80px; height: 80px; border-radius: 40px; background: #242424"><i style="color: #FF9800" class="wi w40" aria-hidden="true">&#xf72e;</i></div>
+    <div class="s20 c" style="margin-top: 24px">Qualità dell’aria non disponibile</div>
+    <div class="m16 t2 c" style="margin-top: 8px; width: 480px">Riprovo tra 5 minuti. Il meteo e la luna restano aggiornati.</div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":800,"height":480}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

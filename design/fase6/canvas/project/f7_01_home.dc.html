@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Home</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./ui.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="scr">
+  <nav class="rail" aria-label="Navigazione">
+    <button class="np" aria-label="Torna a Now playing"><div class="cv v2"></div></button>
+    <button class="pp" aria-label="Pausa"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 4.5h4.5v15H6zM13.5 4.5H18v15h-4.5z"/></svg></button>
+    <button class="it hom on" aria-label="Home"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3l9.5 8H19v9.5h-5V15h-4v5.5H5V11H2.5z"/></svg></button>
+    <button class="it lib" aria-label="Libreria"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.5 3.5h3.2v17H3.5zM9 3.5h3.2v17H9zM14.3 4.6l3-1.1 4.4 15.9-3 1.1z"/></svg></button>
+    <button class="it src" aria-label="Cerca"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></button>
+    <button class="it que" aria-label="Coda"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 4.5h3v3H3zM8.5 4.5H21v3H8.5zM3 10.5h3v3H3zM8.5 10.5H21v3H8.5zM3 16.5h3v3H3zM8.5 16.5H21v3H8.5z"/></svg></button>
+    <button class="it dev" aria-label="Dispositivi"><svg class="tg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 3h18a1 1 0 011 1v11.5a1 1 0 01-1 1H3a1 1 0 01-1-1V4a1 1 0 011-1zM9.5 17.5h5l.8 2.5H18v1.5H6V20h2.7z"/></svg></button>
+  </nav>
+
+  <div class="shl s20" style="top: 15px">Ascoltati di recente</div>
+  <button class="more" style="left: 680px; top: 0px">Tutti<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+
+  <button class="rt" style="left: 112px; top: 56px"><div class="cv v2"></div><span class="tt m16 d1 tg">Tecno house</span><span class="st m16 t3 d1">Playlist</span></button>
+  <button class="rt" style="left: 283px; top: 56px"><div class="cv v1"></div><span class="tt m16 d1">Relapse: Refill</span><span class="st m16 t3 d1">Album · Eminem</span></button>
+  <button class="rt" style="left: 454px; top: 56px"><div class="cv v6"></div><span class="tt m16 d1">Stardust</span><span class="st m16 t3 d1">Album · Yung Lean</span></button>
+  <button class="rt" style="left: 626px; top: 56px"><div class="cv v8"></div><span class="tt m16 d1">Paris</span><span class="st m16 t3 d1">Brano · Kungs</span></button>
+
+  <div class="shl s20" style="top: 297px">Artisti più ascoltati <span class="m16 t3">· 4 settimane</span></div>
+  <button class="more" style="left: 680px; top: 282px">Tutti<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+
+  <button class="ac" style="left: 112px; top: 334px"><div class="cv rd v1"></div><span class="tt m16 d1">Eminem</span></button>
+  <button class="ac" style="left: 245px; top: 334px"><div class="cv rd v6"></div><span class="tt m16 d1">Yung Lean</span></button>
+  <button class="ac" style="left: 378px; top: 334px"><div class="cv rd v8"></div><span class="tt m16 d1">Kungs</span></button>
+  <button class="ac" style="left: 511px; top: 334px"><div class="cv rd v7"></div><span class="tt m16 d1">Klangkarussell</span></button>
+  <button class="ac" style="left: 644px; top: 334px"><div class="cv rd v4"></div><span class="tt m16 d1">Salmo</span></button>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":800,"height":480}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

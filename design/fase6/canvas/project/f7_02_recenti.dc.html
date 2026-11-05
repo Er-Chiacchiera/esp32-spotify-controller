@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Ascoltati di recente – tutti</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./ui.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="scr">
+  <nav class="rail" aria-label="Navigazione">
+    <button class="np" aria-label="Torna a Now playing"><div class="cv v2"></div></button>
+    <button class="pp" aria-label="Pausa"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 4.5h4.5v15H6zM13.5 4.5H18v15h-4.5z"/></svg></button>
+    <button class="it hom on" aria-label="Home"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3l9.5 8H19v9.5h-5V15h-4v5.5H5V11H2.5z"/></svg></button>
+    <button class="it lib" aria-label="Libreria"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.5 3.5h3.2v17H3.5zM9 3.5h3.2v17H9zM14.3 4.6l3-1.1 4.4 15.9-3 1.1z"/></svg></button>
+    <button class="it src" aria-label="Cerca"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></button>
+    <button class="it que" aria-label="Coda"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 4.5h3v3H3zM8.5 4.5H21v3H8.5zM3 10.5h3v3H3zM8.5 10.5H21v3H8.5zM3 16.5h3v3H3zM8.5 16.5H21v3H8.5z"/></svg></button>
+    <button class="it dev" aria-label="Dispositivi"><svg class="tg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 3h18a1 1 0 011 1v11.5a1 1 0 01-1 1H3a1 1 0 01-1-1V4a1 1 0 011-1zM9.5 17.5h5l.8 2.5H18v1.5H6V20h2.7z"/></svg></button>
+  </nav>
+
+  <button class="back" aria-label="Indietro"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <div class="ttl wb s24">Ascoltati di recente</div>
+  <div class="a m16 t3 r" style="left: 560px; top: 21px; width: 160px">14 elementi</div>
+
+  <button class="row wd" style="top: 64px"><div class="cv v2"></div><span class="tt s20 d1 tg">Tecno house</span><span class="st m16 t2 d1">Playlist</span><span class="du"><svg class="tg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 9h4l5.5-4.5v15L7 15H3z"/><path d="M15.5 8.5a5 5 0 010 7M18.2 5.8a8.8 8.8 0 010 12.4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></span></button>
+  <button class="row wd" style="top: 144px"><div class="cv v1"></div><span class="tt s20 d1">Relapse: Refill</span><span class="st m16 t2 d1">Album · Eminem</span><span class="du m16">2 h</span></button>
+  <button class="row wd" style="top: 224px"><div class="cv v8"></div><span class="tt s20 d1">Paris</span><span class="st m16 t2 d1">Brano · Kungs</span><span class="du m16">5 h</span></button>
+  <button class="row wd" style="top: 304px"><div class="cv ph"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M12 2.5a9.5 9.5 0 110 19 9.5 9.5 0 010-19zm0 7a2.5 2.5 0 100 5 2.5 2.5 0 000-5z"/></svg></div><span class="tt s20 d1">Stardust</span><span class="st m16 t2 d1">Album · Yung Lean</span><span class="du m16">ieri</span></button>
+  <button class="row wd" style="top: 384px"><div class="cv ph"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8.5 5.5L20 3v12.8a3 3 0 11-2-2.8V7.4l-7.5 1.6v8.8a3 3 0 11-2-2.8z"/></svg></div><span class="tt s20 d1">Rap italiano 2000s</span><span class="st m16 t2 d1">Playlist</span><span class="du m16">2 nov</span></button>
+
+  <div class="pg">
+    <button class="up" aria-label="Pagina precedente" disabled><i><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 15l7-7 7 7"/></svg></i></button>
+    <div class="ct m16">1/3</div>
+    <button class="dn" aria-label="Pagina successiva"><i><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg></i></button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":800,"height":480}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

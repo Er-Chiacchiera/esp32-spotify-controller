@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Coda</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./ui.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="scr">
+  <nav class="rail" aria-label="Navigazione">
+    <button class="np" aria-label="Torna a Now playing"><div class="cv v1"></div></button>
+    <button class="pp" aria-label="Pausa"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 4.5h4.5v15H6zM13.5 4.5H18v15h-4.5z"/></svg></button>
+    <button class="it lib" aria-label="Libreria"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.5 3.5h3.2v17H3.5zM9 3.5h3.2v17H9zM14.3 4.6l3-1.1 4.4 15.9-3 1.1z"/></svg></button>
+    <button class="it src" aria-label="Cerca"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></button>
+    <button class="it que on" aria-label="Coda"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 4.5h3v3H3zM8.5 4.5H21v3H8.5zM3 10.5h3v3H3zM8.5 10.5H21v3H8.5zM3 16.5h3v3H3zM8.5 16.5H21v3H8.5z"/></svg></button>
+    <button class="it dev" aria-label="Dispositivi"><svg class="tg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 9h4l5.5-4.5v15L7 15H3z"/><path d="M15.5 8.5a5 5 0 010 7M18.2 5.8a8.8 8.8 0 010 12.4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
+  </nav>
+
+  <div class="ttl s24">Coda</div>
+  <div class="a m16 t3 r" style="left: 560px; top: 21px; width: 160px">20 in coda</div>
+
+  <div class="row wd ro" style="top: 64px"><div class="cv v1"></div><span class="tt s20 d1 tg">Pochette (feat. Noyz Narcos)</span><span class="st m16 t2 d1"><span class="tg">In riproduzione</span> · Gemitaiz, Noyz Narcos</span><span class="du"><svg class="tg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 9h4l5.5-4.5v15L7 15H3z"/><path d="M15.5 8.5a5 5 0 010 7M18.2 5.8a8.8 8.8 0 010 12.4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></span></div>
+  <div class="a" style="left: 104px; top: 144px; width: 616px; height: 1px; background: #2A2A2A"></div>
+  <div class="row wd ro" style="top: 144px"><div class="cv v8"></div><span class="tt s20 d1">Applausi per Fibra</span><span class="st m16 t2 d1">Fabri Fibra</span><span class="du m16">3:42</span></div>
+  <div class="row wd ro" style="top: 224px"><div class="cv ph"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8.5 5.5L20 3v12.8a3 3 0 11-2-2.8V7.4l-7.5 1.6v8.8a3 3 0 11-2-2.8z"/></svg></div><span class="tt s20 d1">Mi fist</span><span class="st m16 t2 d1">Club Dogo</span><span class="du m16">4:05</span></div>
+  <div class="row wd ro" style="top: 304px"><div class="cv v4"></div><span class="tt s20 d1">Tranne te</span><span class="st m16 t2 d1">Fabri Fibra</span><span class="du m16">3:31</span></div>
+  <div class="row wd ro" style="top: 384px"><div class="cv ph"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8.5 5.5L20 3v12.8a3 3 0 11-2-2.8V7.4l-7.5 1.6v8.8a3 3 0 11-2-2.8z"/></svg></div><span class="tt s20 d1">Badabum Cha Cha</span><span class="st m16 t2 d1">Marracash</span><span class="du m16">3:20</span></div>
+
+  <div class="pg">
+    <button class="up" aria-label="Pagina precedente" disabled><i><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 15l7-7 7 7"/></svg></i></button>
+    <div class="ct m16">1/5</div>
+    <button class="dn" aria-label="Pagina successiva"><i><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg></i></button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":800,"height":480}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

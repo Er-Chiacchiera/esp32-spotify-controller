@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Pagina artista</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./ui.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="scr">
+  <nav class="rail" aria-label="Navigazione">
+    <button class="np" aria-label="Torna a Now playing"><div class="cv v1"></div></button>
+    <button class="pp" aria-label="Pausa"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 4.5h4.5v15H6zM13.5 4.5H18v15h-4.5z"/></svg></button>
+    <button class="it lib on" aria-label="Libreria"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.5 3.5h3.2v17H3.5zM9 3.5h3.2v17H9zM14.3 4.6l3-1.1 4.4 15.9-3 1.1z"/></svg></button>
+    <button class="it src" aria-label="Cerca"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></button>
+    <button class="it que" aria-label="Coda"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 4.5h3v3H3zM8.5 4.5H21v3H8.5zM3 10.5h3v3H3zM8.5 10.5H21v3H8.5zM3 16.5h3v3H3zM8.5 16.5H21v3H8.5z"/></svg></button>
+    <button class="it dev" aria-label="Dispositivi"><svg class="tg" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 9h4l5.5-4.5v15L7 15H3z"/><path d="M15.5 8.5a5 5 0 010 7M18.2 5.8a8.8 8.8 0 010 12.4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
+  </nav>
+
+  <div class="pnl"></div>
+  <button class="back" aria-label="Indietro"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <div class="pnl-ctx m16 d1">Artista</div>
+  <div class="pnl-cv cv rd v4"></div>
+  <div class="pnl-tx">
+    <div class="s24 d2">Salmo</div>
+    <div class="m16 t2 d2">rap italiano, hip hop italiano</div>
+  </div>
+  <button class="pnl-pl bp"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l12.5-7.5z"/></svg>Riproduci</button>
+
+  <button class="tab on" style="left: 336px">Album</button>
+  <button class="tab" style="left: 440px">Singoli</button>
+  <button class="tab" style="left: 544px">Altro</button>
+
+  <button class="drow th" style="top: 64px"><div class="cv v2"></div><span class="tt s20 d1">Ranch</span><span class="st m16 t2 d1">2023</span></button>
+  <button class="drow th" style="top: 144px"><div class="cv v8"></div><span class="tt s20 d1">Flop</span><span class="st m16 t2 d1">2021</span></button>
+  <button class="drow th" style="top: 224px"><div class="cv v6"></div><span class="tt s20 d1">Playlist</span><span class="st m16 t2 d1">2018</span></button>
+  <button class="drow th" style="top: 304px"><div class="cv ph"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M12 2.5a9.5 9.5 0 110 19 9.5 9.5 0 010-19zm0 7a2.5 2.5 0 100 5 2.5 2.5 0 000-5z"/></svg></div><span class="tt s20 d1">Hellvisback</span><span class="st m16 t2 d1">2016</span></button>
+  <button class="drow th" style="top: 384px"><div class="cv v1"></div><span class="tt s20 d1">Midnite</span><span class="st m16 t2 d1">2013</span></button>
+
+  <div class="pg">
+    <button class="up" aria-label="Pagina precedente" disabled><i><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 15l7-7 7 7"/></svg></i></button>
+    <div class="ct m16">1/2</div>
+    <button class="dn" aria-label="Pagina successiva"><i><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9l7 7 7-7"/></svg></i></button>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":800,"height":480}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

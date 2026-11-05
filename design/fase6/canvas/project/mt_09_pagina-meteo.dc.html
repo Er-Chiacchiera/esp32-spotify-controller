@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Meteo · pagina</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./ui.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="scr">
+  <nav class="rail" aria-label="Navigazione">
+    <button class="np" aria-label="Niente in riproduzione"><div class="cv ph"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8.5 5.5L20 3v12.8a3 3 0 11-2-2.8V7.4l-7.5 1.6v8.8a3 3 0 11-2-2.8z"/></svg></div></button>
+    <button class="pp" aria-label="Riproduci" disabled><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l12.5-7.5z"/></svg></button>
+    <button class="it hom" aria-label="Home"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3l9.5 8H19v9.5h-5V15h-4v5.5H5V11H2.5z"/></svg></button>
+    <button class="it lib" aria-label="Libreria"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.5 3.5h3.2v17H3.5zM9 3.5h3.2v17H9zM14.3 4.6l3-1.1 4.4 15.9-3 1.1z"/></svg></button>
+    <button class="it src" aria-label="Cerca"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></button>
+    <button class="it que" aria-label="Coda"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 4.5h3v3H3zM8.5 4.5H21v3H8.5zM3 10.5h3v3H3zM8.5 10.5H21v3H8.5zM3 16.5h3v3H3zM8.5 16.5H21v3H8.5z"/></svg></button>
+    <button class="it dev" aria-label="Dispositivi"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 3h18a1 1 0 011 1v11.5a1 1 0 01-1 1H3a1 1 0 01-1-1V4a1 1 0 011-1zM9.5 17.5h5l.8 2.5H18v1.5H6V20h2.7z"/></svg></button>
+  </nav>
+
+  <button class="back" aria-label="Indietro"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <div class="ttl wb s24">Meteo</div>
+  <div class="a m16 t3 r" style="left: 456px; top: 21px; width: 320px">Napoli · aggiornato alle 16:15</div>
+
+  <div class="wpan" style="left: 104px; top: 72px; width: 672px; height: 104px">
+    <div class="wc" style="left: -4px"><span class="lb m16">16:00</span><span class="ir"><i class="wi w28" aria-hidden="true">&#xf0c2;</i></span><span class="tp m20">19°</span></div>
+    <div class="wc" style="left: 108px"><span class="lb m16">17:00</span><span class="ir"><i class="wi w28" aria-hidden="true">&#xf0c2;</i></span><span class="tp m20">18°</span></div>
+    <div class="wc" style="left: 220px"><span class="lb m16">18:00</span><span class="ir"><i class="wi w28" aria-hidden="true">&#xf6c3;</i></span><span class="tp m20">17°</span></div>
+    <div class="wc" style="left: 332px"><span class="lb m16">19:00</span><span class="ir"><i class="wi w28" aria-hidden="true">&#xf186;</i></span><span class="tp m20">17°</span></div>
+    <div class="wc" style="left: 444px"><span class="lb m16">20:00</span><span class="ir"><i class="wi w28" aria-hidden="true">&#xf186;</i></span><span class="tp m20">16°</span></div>
+    <div class="wc" style="left: 556px"><span class="lb m16">21:00</span><span class="ir"><i class="wi w28" aria-hidden="true">&#xf186;</i></span><span class="tp m20">16°</span></div>
+  </div>
+  <div class="wpan" style="left: 104px; top: 184px; width: 672px; height: 104px">
+    <div class="wc" style="left: -4px"><span class="lb m16">22:00</span><span class="ir"><i class="wi w28" aria-hidden="true">&#xf6c3;</i></span><span class="tp m20">15°</span></div>
+    <div class="wc" style="left: 108px"><span class="lb m16">23:00</span><span class="ir"><i class="wi w28" aria-hidden="true">&#xf0c2;</i></span><span class="tp m20">15°</span></div>
+    <div class="wc" style="left: 220px"><span class="lb m16">00:00</span><span class="ir"><i class="wi w28" aria-hidden="true">&#xf0c2;</i><span class="m16 tb">20%</span></span><span class="tp m20">14°</span></div>
+    <div class="wc" style="left: 332px"><span class="lb m16">01:00</span><span class="ir"><i class="wi w28" aria-hidden="true">&#xf73d;</i><span class="m16 tb">40%</span></span><span class="tp m20">14°</span></div>
+    <div class="wc" style="left: 444px"><span class="lb m16">02:00</span><span class="ir"><i class="wi w28" aria-hidden="true">&#xf73d;</i><span class="m16 tb">50%</span></span><span class="tp m20">13°</span></div>
+    <div class="wc" style="left: 556px"><span class="lb m16">03:00</span><span class="ir"><i class="wi w28" aria-hidden="true">&#xf740;</i><span class="m16 tb">60%</span></span><span class="tp m20">13°</span></div>
+  </div>
+  <div class="wcard" style="left: 104px; top: 296px">
+    <span class="s20" style="left: 20px; top: 16px">Oggi</span>
+    <span style="left: 20px; top: 60px"><i class="wi w40" aria-hidden="true">&#xf0c2;</i></span>
+    <span class="m20 d1" style="left: 80px; top: 56px; width: 228px">Coperto</span>
+    <span class="m16 t2" style="left: 80px; top: 84px">Min 13° · Max 19°</span>
+    <span class="m16 t2" style="left: 20px; top: 128px; display: flex; gap: 8px; align-items: center"><i class="wi w20" style="color: #6CB4F0" aria-hidden="true">&#xf043;</i><span>Pioggia <span class="tb">0%</span></span></span>
+  </div>
+  <div class="wcard" style="left: 448px; top: 296px">
+    <span class="s20" style="left: 20px; top: 16px">Domani</span>
+    <span style="left: 20px; top: 60px"><i class="wi w40" aria-hidden="true">&#xf743;</i></span>
+    <span class="m20 d1" style="left: 80px; top: 56px; width: 228px">Rovesci</span>
+    <span class="m16 t2" style="left: 80px; top: 84px">Min 12° · Max 18°</span>
+    <span class="m16 t2" style="left: 20px; top: 128px; display: flex; gap: 8px; align-items: center"><i class="wi w20" style="color: #6CB4F0" aria-hidden="true">&#xf043;</i><span>Pioggia <span class="tb">60%</span></span></span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":800,"height":480}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

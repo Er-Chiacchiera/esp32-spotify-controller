@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300">
+<rect width="300" height="300" fill="#13A84A"/>
+<g fill="#0B7A33"><rect x="0" y="0" width="300" height="40"/><rect x="0" y="80" width="300" height="40"/><rect x="0" y="160" width="300" height="40"/><rect x="0" y="240" width="300" height="40"/></g>
+<circle cx="150" cy="150" r="70" fill="#C8F03C"/>
+<text x="150" y="160" text-anchor="middle" font-family="Montserrat,sans-serif" font-weight="600" font-size="28" fill="#0B3D1C">ACIDO</text>
+</svg>

@@ -1,0 +1,590 @@
+{
+ "v": 3,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-11-02T21:30:00Z"
+ },
+ "title": "Telecomando Spotify – design",
+ "launch": {
+  "view": "canvas"
+ },
+ "pages": [
+  {
+   "id": "fase6",
+   "name": "Fase 6 · navigazione"
+  },
+  {
+   "id": "fase7",
+   "name": "Fase 7 · Home"
+  },
+  {
+   "id": "colore",
+   "name": "Colore copertina"
+  },
+  {
+   "id": "meteo",
+   "name": "Meteo"
+  },
+  {
+   "id": "sole",
+   "name": "Sole e aria"
+  }
+ ],
+ "boards": {
+  "Main.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 800,
+   "h": 480,
+   "title": "01 Mappa della navigazione"
+  },
+  "02_now-playing.dc.html": {
+   "x": 880,
+   "y": 0,
+   "w": 800,
+   "h": 480,
+   "title": "02 Now playing (rivista)"
+  },
+  "02b_orologio.dc.html": {
+   "x": 1760,
+   "y": 0,
+   "w": 800,
+   "h": 480,
+   "title": "02b Orologio (rivisto)"
+  },
+  "03_libreria.dc.html": {
+   "x": 2640,
+   "y": 0,
+   "w": 800,
+   "h": 480,
+   "title": "03 Libreria"
+  },
+  "04_playlist-elenco.dc.html": {
+   "x": 0,
+   "y": 600,
+   "w": 800,
+   "h": 480,
+   "title": "04 Playlist – elenco"
+  },
+  "04b_playlist-caricamento.dc.html": {
+   "x": 880,
+   "y": 600,
+   "w": 800,
+   "h": 480,
+   "title": "04b Playlist – caricamento"
+  },
+  "04c_playlist-errore.dc.html": {
+   "x": 1760,
+   "y": 600,
+   "w": 800,
+   "h": 480,
+   "title": "04c Playlist – errore di rete"
+  },
+  "05_playlist-dettaglio.dc.html": {
+   "x": 2640,
+   "y": 600,
+   "w": 800,
+   "h": 480,
+   "title": "05 Playlist – dettaglio"
+  },
+  "05b_menu-brano.dc.html": {
+   "x": 3520,
+   "y": 600,
+   "w": 800,
+   "h": 480,
+   "title": "05b Menu del brano (pressione lunga)"
+  },
+  "05c_playlist-senza-elenco.dc.html": {
+   "x": 4400,
+   "y": 600,
+   "w": 800,
+   "h": 480,
+   "title": "05c Playlist non tua (senza elenco)"
+  },
+  "05d_playlist-vuota.dc.html": {
+   "x": 5280,
+   "y": 600,
+   "w": 800,
+   "h": 480,
+   "title": "05d Playlist vuota"
+  },
+  "06_brani-piaciuti.dc.html": {
+   "x": 0,
+   "y": 1200,
+   "w": 800,
+   "h": 480,
+   "title": "06 Brani piaciuti"
+  },
+  "06b_brani-piaciuti-vuoto.dc.html": {
+   "x": 880,
+   "y": 1200,
+   "w": 800,
+   "h": 480,
+   "title": "06b Brani piaciuti – vuoto"
+  },
+  "07_album-elenco.dc.html": {
+   "x": 1760,
+   "y": 1200,
+   "w": 800,
+   "h": 480,
+   "title": "07 Album salvati"
+  },
+  "08_album-dettaglio.dc.html": {
+   "x": 2640,
+   "y": 1200,
+   "w": 800,
+   "h": 480,
+   "title": "08 Album – dettaglio"
+  },
+  "09_artisti-elenco.dc.html": {
+   "x": 3520,
+   "y": 1200,
+   "w": 800,
+   "h": 480,
+   "title": "09 Artisti seguiti – ultima pagina"
+  },
+  "10_artista-pagina.dc.html": {
+   "x": 4400,
+   "y": 1200,
+   "w": 800,
+   "h": 480,
+   "title": "10 Pagina artista"
+  },
+  "11_coda.dc.html": {
+   "x": 0,
+   "y": 1800,
+   "w": 800,
+   "h": 480,
+   "title": "11 Coda"
+  },
+  "11b_coda-vuota.dc.html": {
+   "x": 880,
+   "y": 1800,
+   "w": 800,
+   "h": 480,
+   "title": "11b Coda vuota"
+  },
+  "12_ricerca-tastiera.dc.html": {
+   "x": 1760,
+   "y": 1800,
+   "w": 800,
+   "h": 480,
+   "title": "12 Ricerca – tastiera"
+  },
+  "12b_ricerca-risultati.dc.html": {
+   "x": 2640,
+   "y": 1800,
+   "w": 800,
+   "h": 480,
+   "title": "12b Ricerca – risultati"
+  },
+  "12c_ricerca-nessun-risultato.dc.html": {
+   "x": 3520,
+   "y": 1800,
+   "w": 800,
+   "h": 480,
+   "title": "12c Ricerca – nessun risultato"
+  },
+  "13_dispositivi.dc.html": {
+   "x": 0,
+   "y": 2400,
+   "w": 800,
+   "h": 480,
+   "title": "13 Dispositivi"
+  },
+  "13b_dispositivi-nessuno-attivo.dc.html": {
+   "x": 880,
+   "y": 2400,
+   "w": 800,
+   "h": 480,
+   "title": "13b Dispositivi – aperta da comando fallito"
+  },
+  "13c_dispositivi-vuoto.dc.html": {
+   "x": 1760,
+   "y": 2400,
+   "w": 800,
+   "h": 480,
+   "title": "13c Dispositivi – nessuno trovato"
+  },
+  "f7_01_home.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 800,
+   "h": 480,
+   "page": "fase7",
+   "title": "F7 01 Home"
+  },
+  "f7_01b_home-caricamento.dc.html": {
+   "x": 880,
+   "y": 0,
+   "w": 800,
+   "h": 480,
+   "page": "fase7",
+   "title": "F7 01b Home – appena aperta (0 s)"
+  },
+  "f7_01c_home-parziale.dc.html": {
+   "x": 1760,
+   "y": 0,
+   "w": 800,
+   "h": 480,
+   "page": "fase7",
+   "title": "F7 01c Home – dopo ~1 s"
+  },
+  "f7_01d_home-errore.dc.html": {
+   "x": 2640,
+   "y": 0,
+   "w": 800,
+   "h": 480,
+   "page": "fase7",
+   "title": "F7 01d Home – errore di rete"
+  },
+  "f7_01e_home-vuota.dc.html": {
+   "x": 3520,
+   "y": 0,
+   "w": 800,
+   "h": 480,
+   "page": "fase7",
+   "title": "F7 01e Home – account nuovo"
+  },
+  "f7_02_recenti.dc.html": {
+   "x": 0,
+   "y": 600,
+   "w": 800,
+   "h": 480,
+   "page": "fase7",
+   "title": "F7 02 Ascoltati di recente – tutti"
+  },
+  "f7_03_top-artisti.dc.html": {
+   "x": 880,
+   "y": 600,
+   "w": 800,
+   "h": 480,
+   "page": "fase7",
+   "title": "F7 03 Più ascoltati – artisti"
+  },
+  "f7_03b_top-brani.dc.html": {
+   "x": 1760,
+   "y": 600,
+   "w": 800,
+   "h": 480,
+   "page": "fase7",
+   "title": "F7 03b Più ascoltati – brani, 6 mesi"
+  },
+  "f7_04_orologio.dc.html": {
+   "x": 0,
+   "y": 1200,
+   "w": 800,
+   "h": 480,
+   "page": "fase7",
+   "title": "F7 04 Orologio con Home"
+  },
+  "f7_05_now-playing.dc.html": {
+   "x": 880,
+   "y": 1200,
+   "w": 800,
+   "h": 480,
+   "page": "fase7",
+   "title": "F7 05 Now playing con Home"
+  },
+  "cc_00_ricetta.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 800,
+   "h": 480,
+   "page": "colore",
+   "title": "Colore 00 Ricetta del colore"
+  },
+  "cc_01_scura.dc.html": {
+   "x": 880,
+   "y": 0,
+   "w": 800,
+   "h": 480,
+   "page": "colore",
+   "title": "Colore 01 Copertina scura"
+  },
+  "cc_02_chiara.dc.html": {
+   "x": 1760,
+   "y": 0,
+   "w": 800,
+   "h": 480,
+   "page": "colore",
+   "title": "Colore 02 Copertina chiara"
+  },
+  "cc_03_colorata.dc.html": {
+   "x": 0,
+   "y": 600,
+   "w": 800,
+   "h": 480,
+   "page": "colore",
+   "title": "Colore 03 Copertina molto colorata"
+  },
+  "cc_04_bianco-nero.dc.html": {
+   "x": 880,
+   "y": 600,
+   "w": 800,
+   "h": 480,
+   "page": "colore",
+   "title": "Colore 04 Copertina in bianco e nero"
+  },
+  "cc_05_verde.dc.html": {
+   "x": 1760,
+   "y": 600,
+   "w": 800,
+   "h": 480,
+   "page": "colore",
+   "title": "Colore 05 Copertina verde"
+  },
+  "cc_06_senza-copertina.dc.html": {
+   "x": 0,
+   "y": 1200,
+   "w": 800,
+   "h": 480,
+   "page": "colore",
+   "title": "Colore 06 Senza copertina"
+  },
+  "cc_07_copertina-in-arrivo.dc.html": {
+   "x": 880,
+   "y": 1200,
+   "w": 800,
+   "h": 480,
+   "page": "colore",
+   "title": "Colore 07 Copertina in arrivo"
+  },
+  "cc_08_pausa-premuto.dc.html": {
+   "x": 1760,
+   "y": 1200,
+   "w": 800,
+   "h": 480,
+   "page": "colore",
+   "title": "Colore 08 Pausa, premuti, disabilitati"
+  },
+  "mt_01_giorno-sereno.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 800,
+   "h": 480,
+   "page": "meteo",
+   "title": "Meteo 01 Giorno sereno"
+  },
+  "mt_02_notte.dc.html": {
+   "x": 880,
+   "y": 0,
+   "w": 800,
+   "h": 480,
+   "page": "meteo",
+   "title": "Meteo 02 Notte"
+  },
+  "mt_03_pioggia.dc.html": {
+   "x": 1760,
+   "y": 0,
+   "w": 800,
+   "h": 480,
+   "page": "meteo",
+   "title": "Meteo 03 Pioggia"
+  },
+  "mt_04_in-arrivo.dc.html": {
+   "x": 0,
+   "y": 600,
+   "w": 800,
+   "h": 480,
+   "page": "meteo",
+   "title": "Meteo 04 In arrivo"
+  },
+  "mt_05_errore.dc.html": {
+   "x": 880,
+   "y": 600,
+   "w": 800,
+   "h": 480,
+   "page": "meteo",
+   "title": "Meteo 05 Non disponibile"
+  },
+  "mt_06_dato-vecchio.dc.html": {
+   "x": 1760,
+   "y": 600,
+   "w": 800,
+   "h": 480,
+   "page": "meteo",
+   "title": "Meteo 06 Dato vecchio"
+  },
+  "mt_07_neve-sotto-zero.dc.html": {
+   "x": 0,
+   "y": 1200,
+   "w": 800,
+   "h": 480,
+   "page": "meteo",
+   "title": "Meteo 07 Neve e sotto zero"
+  },
+  "mt_08_premuto.dc.html": {
+   "x": 880,
+   "y": 1200,
+   "w": 800,
+   "h": 480,
+   "page": "meteo",
+   "title": "Meteo 08 Premuto"
+  },
+  "mt_09_pagina-meteo.dc.html": {
+   "x": 1760,
+   "y": 1200,
+   "w": 800,
+   "h": 480,
+   "page": "meteo",
+   "title": "Meteo 09 Pagina Meteo"
+  },
+  "sa_00_colori-e-fasi.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 800,
+   "h": 480,
+   "page": "sole",
+   "title": "Sole e aria 00 Colori e fasi"
+  },
+  "sa_01_orologio.dc.html": {
+   "x": 880,
+   "y": 0,
+   "w": 800,
+   "h": 480,
+   "page": "sole",
+   "title": "Sole e aria 01 Orologio"
+  },
+  "sa_02_orologio-primavera.dc.html": {
+   "x": 1760,
+   "y": 0,
+   "w": 800,
+   "h": 480,
+   "page": "sole",
+   "title": "Sole e aria 02 Orologio primavera"
+  },
+  "sa_03_orologio-in-arrivo.dc.html": {
+   "x": 2640,
+   "y": 0,
+   "w": 800,
+   "h": 480,
+   "page": "sole",
+   "title": "Sole e aria 03 Orologio in arrivo"
+  },
+  "sa_04_orologio-premuto.dc.html": {
+   "x": 0,
+   "y": 560,
+   "w": 800,
+   "h": 480,
+   "page": "sole",
+   "title": "Sole e aria 04 Orologio premuto"
+  },
+  "sa_05_sole-luna-falce.dc.html": {
+   "x": 880,
+   "y": 560,
+   "w": 800,
+   "h": 480,
+   "page": "sole",
+   "title": "Sole e aria 05 Sole luna falce"
+  },
+  "sa_06_sole-luna-piena.dc.html": {
+   "x": 1760,
+   "y": 560,
+   "w": 800,
+   "h": 480,
+   "page": "sole",
+   "title": "Sole e aria 06 Sole luna piena"
+  },
+  "sa_07_aria-scadente.dc.html": {
+   "x": 2640,
+   "y": 560,
+   "w": 800,
+   "h": 480,
+   "page": "sole",
+   "title": "Sole e aria 07 Aria scadente"
+  },
+  "sa_08_aria-buona-pollini.dc.html": {
+   "x": 0,
+   "y": 1120,
+   "w": 800,
+   "h": 480,
+   "page": "sole",
+   "title": "Sole e aria 08 Aria buona pollini"
+  },
+  "sa_09_aria-non-disponibile.dc.html": {
+   "x": 880,
+   "y": 1120,
+   "w": 800,
+   "h": 480,
+   "page": "sole",
+   "title": "Sole e aria 09 Aria non disponibile"
+  },
+  "sa_10_meteo-schede.dc.html": {
+   "x": 1760,
+   "y": 1120,
+   "w": 800,
+   "h": 480,
+   "page": "sole",
+   "title": "Sole e aria 10 Meteo schede"
+  }
+ },
+ "order": [
+  "Main.dc.html",
+  "02_now-playing.dc.html",
+  "02b_orologio.dc.html",
+  "03_libreria.dc.html",
+  "04_playlist-elenco.dc.html",
+  "04b_playlist-caricamento.dc.html",
+  "04c_playlist-errore.dc.html",
+  "05_playlist-dettaglio.dc.html",
+  "05b_menu-brano.dc.html",
+  "05c_playlist-senza-elenco.dc.html",
+  "05d_playlist-vuota.dc.html",
+  "06_brani-piaciuti.dc.html",
+  "06b_brani-piaciuti-vuoto.dc.html",
+  "07_album-elenco.dc.html",
+  "08_album-dettaglio.dc.html",
+  "09_artisti-elenco.dc.html",
+  "10_artista-pagina.dc.html",
+  "11_coda.dc.html",
+  "11b_coda-vuota.dc.html",
+  "12_ricerca-tastiera.dc.html",
+  "12b_ricerca-risultati.dc.html",
+  "12c_ricerca-nessun-risultato.dc.html",
+  "13_dispositivi.dc.html",
+  "13b_dispositivi-nessuno-attivo.dc.html",
+  "13c_dispositivi-vuoto.dc.html",
+  "f7_01_home.dc.html",
+  "f7_01b_home-caricamento.dc.html",
+  "f7_01c_home-parziale.dc.html",
+  "f7_01d_home-errore.dc.html",
+  "f7_01e_home-vuota.dc.html",
+  "f7_02_recenti.dc.html",
+  "f7_03_top-artisti.dc.html",
+  "f7_03b_top-brani.dc.html",
+  "f7_04_orologio.dc.html",
+  "f7_05_now-playing.dc.html",
+  "cc_00_ricetta.dc.html",
+  "cc_01_scura.dc.html",
+  "cc_02_chiara.dc.html",
+  "cc_03_colorata.dc.html",
+  "cc_04_bianco-nero.dc.html",
+  "cc_05_verde.dc.html",
+  "cc_06_senza-copertina.dc.html",
+  "cc_07_copertina-in-arrivo.dc.html",
+  "cc_08_pausa-premuto.dc.html",
+  "mt_01_giorno-sereno.dc.html",
+  "mt_02_notte.dc.html",
+  "mt_03_pioggia.dc.html",
+  "mt_04_in-arrivo.dc.html",
+  "mt_05_errore.dc.html",
+  "mt_06_dato-vecchio.dc.html",
+  "mt_07_neve-sotto-zero.dc.html",
+  "mt_08_premuto.dc.html",
+  "mt_09_pagina-meteo.dc.html",
+  "sa_00_colori-e-fasi.dc.html",
+  "sa_01_orologio.dc.html",
+  "sa_02_orologio-primavera.dc.html",
+  "sa_03_orologio-in-arrivo.dc.html",
+  "sa_04_orologio-premuto.dc.html",
+  "sa_05_sole-luna-falce.dc.html",
+  "sa_06_sole-luna-piena.dc.html",
+  "sa_07_aria-scadente.dc.html",
+  "sa_08_aria-buona-pollini.dc.html",
+  "sa_09_aria-non-disponibile.dc.html",
+  "sa_10_meteo-schede.dc.html"
+ ],
+ "notes": {},
+ "designSystems": []
+}

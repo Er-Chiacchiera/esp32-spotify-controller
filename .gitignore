@@ -1,0 +1,16 @@
+# Segreti: mai su git
+.env
+*.env
+secrets.h
+**/secrets.h
+
+# File generati
+build/
+**/build/
+__pycache__/
+*.pyc
+.venv/
+.DS_Store
+
+# Solo per la sessione di lavoro con Claude Code
+.claude/settings.local.json

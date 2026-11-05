@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Dispositivi – aperta da comando fallito</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./ui.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="scr">
+  <nav class="rail" aria-label="Navigazione">
+    <button class="np" aria-label="Niente in riproduzione"><div class="cv ph"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8.5 5.5L20 3v12.8a3 3 0 11-2-2.8V7.4l-7.5 1.6v8.8a3 3 0 11-2-2.8z"/></svg></div></button>
+    <button class="pp" aria-label="Riproduci" disabled><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l12.5-7.5z"/></svg></button>
+    <button class="it lib" aria-label="Libreria"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.5 3.5h3.2v17H3.5zM9 3.5h3.2v17H9zM14.3 4.6l3-1.1 4.4 15.9-3 1.1z"/></svg></button>
+    <button class="it src" aria-label="Cerca"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></button>
+    <button class="it que" aria-label="Coda"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 4.5h3v3H3zM8.5 4.5H21v3H8.5zM3 10.5h3v3H3zM8.5 10.5H21v3H8.5zM3 16.5h3v3H3zM8.5 16.5H21v3H8.5z"/></svg></button>
+    <button class="it dev on" aria-label="Dispositivi – nessuno attivo"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 3h18a1 1 0 011 1v11.5a1 1 0 01-1 1H3a1 1 0 01-1-1V4a1 1 0 011-1zM9.5 17.5h5l.8 2.5H18v1.5H6V20h2.7z"/></svg><span class="alert"></span></button>
+  </nav>
+
+  <button class="back" aria-label="Indietro"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <div class="ttl wb s24">Dispositivi</div>
+  <button class="ibtn" style="left: 672px; top: 0px" aria-label="Aggiorna l'elenco"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 11-2.4-5.7"/><path d="M20 3.5V9h-5.5"/></svg></button>
+
+  <div class="ban" role="status" style="left: 104px; top: 68px; width: 680px; height: 56px">
+    <svg class="to" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M12 2.5l10.5 18.5h-21zM10.8 9h2.4v6h-2.4zM10.8 16.5h2.4v2.4h-2.4z"/></svg>
+    <span class="m16 d1">Nessun dispositivo attivo: scegli dove far partire la musica.</span>
+  </div>
+
+  <button class="row wd" style="top: 136px">
+    <span class="dvi"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 3h18a1 1 0 011 1v11.5a1 1 0 01-1 1H3a1 1 0 01-1-1V4a1 1 0 011-1zM9.5 17.5h5l.8 2.5H18v1.5H6V20h2.7z"/></svg></span>
+    <span class="tt s20 d1">MacBook Pro di Valerio</span><span class="st m16 t2 d1">Computer</span>
+  </button>
+  <button class="row wd" style="top: 216px">
+    <span class="dvi"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M7.5 1.5h9A1.5 1.5 0 0118 3v18a1.5 1.5 0 01-1.5 1.5h-9A1.5 1.5 0 016 21V3a1.5 1.5 0 011.5-1.5zM10.5 18.5v1.5h3v-1.5z"/></svg></span>
+    <span class="tt s20 d1">iPhone di Valerio</span><span class="st m16 t2 d1">Smartphone</span>
+  </button>
+  <button class="row wd" style="top: 296px">
+    <span class="dvi"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 9h4l5.5-4.5v15L7 15H3z"/><path d="M15.5 8.5a5 5 0 010 7M18.2 5.8a8.8 8.8 0 010 12.4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></span>
+    <span class="tt s20 d1">Camera Valerio</span><span class="st m16 t2 d1">Cassa</span>
+  </button>
+
+  <div class="a m16 t3" style="left: 112px; top: 412px">Appena scegli, parte «Rap italiano 2000s» su quel dispositivo.</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":800,"height":480}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

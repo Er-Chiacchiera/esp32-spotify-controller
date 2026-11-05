@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Sole e aria 07 · Aria scadente</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./ui.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="scr">
+  <nav class="rail" aria-label="Navigazione">
+    <button class="np" aria-label="Niente in riproduzione"><div class="cv ph"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8.5 5.5L20 3v12.8a3 3 0 11-2-2.8V7.4l-7.5 1.6v8.8a3 3 0 11-2-2.8z"/></svg></div></button>
+    <button class="pp" aria-label="Riproduci" disabled><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15l12.5-7.5z"/></svg></button>
+    <button class="it hom" aria-label="Home"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3l9.5 8H19v9.5h-5V15h-4v5.5H5V11H2.5z"/></svg></button>
+    <button class="it lib" aria-label="Libreria"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.5 3.5h3.2v17H3.5zM9 3.5h3.2v17H9zM14.3 4.6l3-1.1 4.4 15.9-3 1.1z"/></svg></button>
+    <button class="it src" aria-label="Cerca"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></button>
+    <button class="it que" aria-label="Coda"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 4.5h3v3H3zM8.5 4.5H21v3H8.5zM3 10.5h3v3H3zM8.5 10.5H21v3H8.5zM3 16.5h3v3H3zM8.5 16.5H21v3H8.5z"/></svg></button>
+    <button class="it dev" aria-label="Dispositivi"><svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 3h18a1 1 0 011 1v11.5a1 1 0 01-1 1H3a1 1 0 01-1-1V4a1 1 0 011-1zM9.5 17.5h5l.8 2.5H18v1.5H6V20h2.7z"/></svg></button>
+  </nav>
+
+  <button class="back" aria-label="Indietro"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <button class="tab" style="left: 152px; width: 104px">Meteo</button>
+  <button class="tab" style="left: 256px; width: 144px">Sole e luna</button>
+  <button class="tab on" style="left: 400px; width: 104px">Aria</button>
+  <div class="a m16 t3" style="left: 512px; top: 21px; width: 264px; display: flex; justify-content: flex-end; gap: 8px; align-items: center"><span class="d1">Roma · aggiornato alle 21:00</span></div>
+
+  <div class="wpan ab" style="left: 104px; top: 72px; width: 672px; height: 216px">
+    <span class="wrow" style="left: 20px; top: 8px; height: 72px; gap: 20px"><span class="t64">66</span><span style="display: flex; flex-direction: column"><span style="display: flex; align-items: center; gap: 10px"><i class="dot" style="width: 14px; height: 14px; background: #F2873A"></i><span class="s24">Scadente</span></span><span class="m16 t2" style="margin-top: 2px">Qualità dell’aria adesso</span></span></span>
+    <span class="seg" style="left: 420px; top: 36px; width: 36px; background: #4CC3D9"></span>
+    <span class="seg" style="left: 459px; top: 36px; width: 36px; background: #5CC48A"></span>
+    <span class="seg" style="left: 498px; top: 36px; width: 36px; background: #E8CF4A"></span>
+    <span class="seg" style="left: 537px; top: 36px; width: 36px; background: #F2873A"></span>
+    <span class="seg" style="left: 576px; top: 36px; width: 36px; background: #E5484D"></span>
+    <span class="seg" style="left: 615px; top: 36px; width: 36px; background: #B76FE3"></span>
+    <span class="mk" style="left: 538px; top: 30px"></span>
+    <span class="m16 t3" style="left: 420px; top: 52px">Buona</span>
+    <span class="m16 t3 r" style="left: 532px; top: 52px; width: 120px">Pessima</span>
+    <span class="hr1" style="left: 20px; top: 96px; width: 632px"></span>
+    <span class="m16 t2" style="left: 20px; top: 108px">Prossime 24 ore</span>
+    <span class="m16 t3 r" style="left: 232px; top: 108px; width: 420px">minimo 33 alle 06:00 · massimo 71 alle 19:00</span>
+    <span class="bar" style="left: 24px; top: 150px; height: 32px; background: #F2873A"></span>
+    <span class="bar" style="left: 50px; top: 152px; height: 30px; background: #F2873A"></span>
+    <span class="bar" style="left: 76px; top: 155px; height: 27px; background: #E8CF4A"></span>
+    <span class="bar" style="left: 102px; top: 157px; height: 25px; background: #E8CF4A"></span>
+    <span class="bar" style="left: 128px; top: 159px; height: 23px; background: #E8CF4A"></span>
+    <span class="bar" style="left: 154px; top: 161px; height: 21px; background: #E8CF4A"></span>
+    <span class="bar" style="left: 180px; top: 162px; height: 20px; background: #E8CF4A"></span>
+    <span class="bar" style="left: 206px; top: 164px; height: 18px; background: #5CC48A"></span>
+    <span class="bar" style="left: 232px; top: 165px; height: 17px; background: #5CC48A"></span>
+    <span class="bar" style="left: 258px; top: 166px; height: 16px; background: #5CC48A"></span>
+    <span class="bar" style="left: 284px; top: 165px; height: 17px; background: #5CC48A"></span>
+    <span class="bar" style="left: 310px; top: 162px; height: 20px; background: #E8CF4A"></span>
+    <span class="bar" style="left: 336px; top: 157px; height: 25px; background: #E8CF4A"></span>
+    <span class="bar" style="left: 362px; top: 158px; height: 24px; background: #E8CF4A"></span>
+    <span class="bar" style="left: 388px; top: 161px; height: 21px; background: #E8CF4A"></span>
+    <span class="bar" style="left: 414px; top: 164px; height: 18px; background: #5CC48A"></span>
+    <span class="bar" style="left: 440px; top: 166px; height: 16px; background: #5CC48A"></span>
+    <span class="bar" style="left: 466px; top: 165px; height: 17px; background: #5CC48A"></span>
+    <span class="bar" style="left: 492px; top: 163px; height: 19px; background: #E8CF4A"></span>
+    <span class="bar" style="left: 518px; top: 159px; height: 23px; background: #E8CF4A"></span>
+    <span class="bar" style="left: 544px; top: 155px; height: 27px; background: #E8CF4A"></span>
+    <span class="bar" style="left: 570px; top: 151px; height: 31px; background: #F2873A"></span>
+    <span class="bar" style="left: 596px; top: 148px; height: 34px; background: #F2873A"></span>
+    <span class="bar" style="left: 622px; top: 149px; height: 33px; background: #F2873A"></span>
+    <span class="m16 t3 c" style="left: 4px; top: 186px; width: 60px">Ora</span>
+    <span class="m16 t3 c" style="left: 160px; top: 186px; width: 60px">03:00</span>
+    <span class="m16 t3 c" style="left: 316px; top: 186px; width: 60px">09:00</span>
+    <span class="m16 t3 c" style="left: 472px; top: 186px; width: 60px">15:00</span>
+  </div>
+  <div class="wcard" style="left: 104px; top: 296px">
+    <span class="s20" style="left: 20px; top: 16px">Inquinanti</span>
+    <span class="m16 t3 r" style="left: 148px; top: 19px; width: 160px">µg/m³</span>
+    <i class="dot" style="left: 20px; top: 62px; width: 10px; height: 10px; background: #F2873A"></i>
+    <span class="m16 t2" style="left: 40px; top: 56px">PM2,5</span>
+    <span class="m16 r" style="left: 188px; top: 56px; width: 120px">36,1</span>
+    <i class="dot" style="left: 20px; top: 90px; width: 10px; height: 10px; background: #E8CF4A"></i>
+    <span class="m16 t2" style="left: 40px; top: 84px">PM10</span>
+    <span class="m16 r" style="left: 188px; top: 84px; width: 120px">41,0</span>
+    <i class="dot" style="left: 20px; top: 118px; width: 10px; height: 10px; background: #5CC48A"></i>
+    <span class="m16 t2" style="left: 40px; top: 112px">Biossido di azoto</span>
+    <span class="m16 r" style="left: 188px; top: 112px; width: 120px">64,2</span>
+    <i class="dot" style="left: 20px; top: 146px; width: 10px; height: 10px; background: #4CC3D9"></i>
+    <span class="m16 t2" style="left: 40px; top: 140px">Ozono</span>
+    <span class="m16 r" style="left: 188px; top: 140px; width: 120px">2,0</span>
+  </div>
+  <div class="wcard" style="left: 448px; top: 296px">
+    <span class="s20" style="left: 20px; top: 16px">Pollini</span>
+    <span style="left: 20px; top: 60px"><i style="color: #8A8A8A" class="wi w40" aria-hidden="true">&#xf5bb;</i></span>
+    <span class="m20" style="left: 80px; top: 56px">Nessun polline</span>
+    <span class="m16 t2" style="left: 80px; top: 84px">Fuori stagione</span>
+    <span class="m16 t3" style="left: 20px; top: 128px">I primi arrivano a febbraio.</span>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":800,"height":480}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

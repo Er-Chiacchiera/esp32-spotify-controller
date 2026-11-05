@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300">
+<rect width="300" height="300" fill="#E5197E"/>
+<path d="M0 300 L0 236 Q150 186 300 250 L300 300Z" fill="#FFD21F"/>
+<circle cx="86" cy="92" r="34" fill="#20C7E0"/>
+<path d="M190 40 l70 0 l-35 60z" fill="#20C7E0"/>
+<text x="150" y="180" text-anchor="middle" font-family="Montserrat,sans-serif" font-weight="600" font-size="44" fill="#FFD21F">POP!</text>
+</svg>
