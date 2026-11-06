@@ -102,6 +102,13 @@ LV_FONT_DECLARE(font_ic_40);
 #define IC_HDD "\xEF\x82\xA0"          // font_ic_20
 #define IC_THERMOMETER "\xEF\x8B\x89"  // thermometer-half, font_ic_20
 #define IC_PLUG "\xEF\x87\xA6"         // font_ic_28
+// Comandi del Mac (SPEC_CONTROLLO_MAC §8)
+#define IC_MIC "\xEF\x84\xB0"           // microphone, font_ic_28
+#define IC_MIC_SLASH "\xEF\x84\xB1"     // microphone-slash, font_ic_28
+#define IC_VOLUME_MUTE "\xEF\x9A\xA9"   // volume-mute, font_ic_28
+#define IC_COFFEE "\xEF\x83\xB4"        // tieni sveglio, font_ic_28
+#define IC_MOON "\xEF\x86\x86"          // stop, font_ic_28/40 (c'è già fra le icone del meteo)
+#define IC_LINK "\xEF\x83\x81"          // abbinamento, font_ic_40
 // Città del meteo (SPEC_CITTA §11)
 #define IC_MARKER "\xEF\x8F\x85"        // map-marker-alt, font_ic_20/28/40
 #define IC_LOCATION "\xEF\x84\xA4"      // location-arrow, font_ic_28

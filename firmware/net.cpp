@@ -345,6 +345,9 @@ static void run_station(const String &ssid, const String &pass)
 
   bool ntp_started = false;
   bool was_connected = false;
+  // L'autoReconnect a volte si arrende se la rete sparisce a lungo (router riavviato o cambiato, 6/11/2026):
+  // dopo un minuto senza rete si ricomincia la connessione da capo, poi di nuovo ogni minuto
+  uint32_t retry_at = millis() + 60000;
   bool ota_confirmed = false;
   while (true) {
     handle_forget();
@@ -368,6 +371,14 @@ static void run_station(const String &ssid, const String &pass)
       xSemaphoreGive(status_mutex);
     }
     was_connected = connected;
+    if (connected) {
+      retry_at = millis() + 60000;
+    } else if ((int32_t)(millis() - retry_at) >= 0) {
+      Serial.printf("Wi-Fi: nessuna rete da un minuto, ricomincio la connessione a %s\n", ssid.c_str());
+      WiFi.disconnect();
+      WiFi.begin(ssid.c_str(), pass.c_str());
+      retry_at = millis() + 60000;
+    }
 
     bool time_ok = time(nullptr) > 1700000000;  // dopo il 2023: l'NTP ha risposto
     xSemaphoreTake(status_mutex, portMAX_DELAY);
@@ -400,8 +411,8 @@ static void run_station(const String &ssid, const String &pass)
       if (connected) {
         ArduinoOTA.handle();
         info_handle();
-        computer_poll();
       }
+      computer_poll(connected);
       vTaskDelay(pdMS_TO_TICKS(100));
     }
   }

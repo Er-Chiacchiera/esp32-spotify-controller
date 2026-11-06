@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>Mac 06 · Conferma prima dello stop</title></title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./ui.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600&amp;display=swap">
+<style>body{margin:0}</style>
+</helmet>
+<div class="scr">
+  <nav class="rail v2" aria-label="Navigazione">
+    <button class="np" aria-label="Apri Now playing"><div class="cv v5"></div></button>
+    <button class="pp" aria-label="Pausa"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf04c;</i></button>
+    <button class="nx" aria-label="Brano successivo"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf051;</i></button>
+    <span class="sp"></span>
+    <button class="it on" style="top: 200px" aria-label="Home"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf015;</i></button>
+    <button class="it" style="top: 256px" aria-label="Ascolti"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf025;</i></button>
+    <button class="it" style="top: 312px" aria-label="Libreria"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf02d;</i></button>
+    <button class="it" style="top: 368px" aria-label="Cerca"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf002;</i></button>
+    <button class="it" style="top: 424px" aria-label="Dispositivi"><i class="fa" style="color: #1DB954; font-size: 28px; height: 28px" aria-hidden="true">&#xf108;</i></button>
+  </nav>
+  <button class="back" aria-label="Indietro"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <button class="tab" style="left: 152px; width: 104px">Stato</button>
+  <button class="tab on" style="left: 256px; width: 128px">Comandi</button>
+  <div class="a m16 t3" style="left: 408px; top: 21px; width: 368px; display: flex; justify-content: flex-end; gap: 8px; align-items: center"><i class="dot" style="width: 10px; height: 10px; background: #5CC48A"></i><span class="d1">Valerio’s MacBook Pro</span></div>
+
+  <div class="wpan ab" style="left: 104px; top: 72px; width: 672px; height: 136px">
+    <span class="s20" style="left: 20px; top: 15px; height: 28px; display: flex; gap: 12px; align-items: center"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf109;</i><span>Volume del Mac</span></span>
+    <span class="m16 t2 r d1" style="left: 352px; top: 19px; width: 300px">MacBook Pro Speakers</span>
+    <button class="fx" style="left: 20px; top: 64px; width: 56px; height: 56px; border-radius: 28px; background: #3A3A3A" aria-label="Audio muto"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf028;</i></button>
+    <span style="left: 96px; top: 88px; width: 472px; height: 8px; border-radius: 4px; background: #3A3A3A"></span>
+    <span style="left: 96px; top: 88px; width: 297px; height: 8px; border-radius: 4px; background: #FFFFFF"></span>
+    <span style="left: 379px; top: 78px; width: 28px; height: 28px; border-radius: 14px; background: #FFFFFF"></span>
+    <span class="s30 r" style="left: 588px; top: 73px; width: 64px">63</span>
+  </div>
+  <button class="wcard" style="left: 104px; top: 216px; width: 332px; height: 140px; background: #242424; text-align: left">
+    <span class="fx" style="left: 16px; top: 16px; width: 56px; height: 56px; border-radius: 28px; background: #3A3A3A"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf130;</i></span>
+    <span class="s20 d1" style="left: 88px; top: 19px; width: 228px">Microfono</span>
+    <span class="m16 t2" style="left: 88px; top: 47px">Acceso</span>
+    <span class="m16 t3" style="left: 16px; top: 88px; width: 300px">MacBook Pro Microphone</span>
+  </button>
+  <button class="wcard" style="left: 444px; top: 216px; width: 332px; height: 140px; background: #242424; text-align: left">
+    <span class="fx" style="left: 16px; top: 16px; width: 56px; height: 56px; border-radius: 28px; background: #3A3A3A"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf0f4;</i></span>
+    <span class="s20 d1" style="left: 88px; top: 19px; width: 228px">Tieni sveglio</span>
+    <span class="m16 t2" style="left: 88px; top: 47px">Spento</span>
+    <span class="m16 t3" style="left: 16px; top: 88px; width: 300px">Il Mac va in stop da solo, come sempre.</span>
+  </button>
+  <div class="wpan ab" style="left: 104px; top: 364px; width: 672px; height: 100px; box-sizing: border-box; border: 1px solid #535353">
+    <span class="fx" style="left: 15px; top: 21px; width: 56px; height: 56px; border-radius: 28px; background: #3A3A3A"><i class="fa" style="font-size: 28px; height: 28px" aria-hidden="true">&#xf186;</i></span>
+    <span class="s20 d1" style="left: 87px; top: 23px; width: 264px">Mettere in stop il Mac?</span>
+    <span class="m16 t2 d1" style="left: 87px; top: 51px; width: 264px">Si sveglia solo dal Mac.</span>
+    <button class="bs" style="left: 351px; top: 21px; width: 136px; border-color: #535353">Annulla</button>
+    <button class="bp" style="left: 499px; top: 21px; width: 156px">Metti in stop</button>
+  </div>
+</div>
+</x-dc>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":800,"height":480}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -21,4 +21,9 @@ bool computer_tile(const ComputerStatus &c, ComputerTile *out);
 // "Valerio's MacBook Pro · collegato", "… · ultimo dato alle 18:40", "Nessun computer collegato"
 void computer_settings_text(const ComputerStatus &c, char *out, size_t n);
 
-View *view_computer();
+// Pagina Computer a due schede (SPEC_CONTROLLO_MAC §3.1): 0 Stato, 1 Comandi. repair: codice di un abbinamento
+// nuovo anche se il Mac è già abbinato ("Abbina di nuovo" di Impostazioni, §7)
+enum ComputerTab { CT_STATUS, CT_COMMANDS };
+View *view_computer(int tab = CT_STATUS, bool repair = false);
+// Pulsante del Mac nella Home (§4): false se non c'è; altrimenti icona e colore della spia
+bool computer_home_button(const ComputerStatus &c, const char **icon, lv_color_t *color);

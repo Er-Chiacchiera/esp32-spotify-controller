@@ -40,6 +40,10 @@
   {
    "id": "citta",
    "name": "Città del meteo"
+  },
+  {
+   "id": "mac",
+   "name": "Comandi del Mac"
   }
  ],
  "boards": {
@@ -873,6 +877,142 @@
    "h": 480,
    "page": "citta",
    "title": "17 · Posizione non trovata, Milano predefinita"
+  },
+  "cm_01_home.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 800,
+   "h": 480,
+   "page": "mac",
+   "title": "01 · Home con il pulsante del Mac"
+  },
+  "cm_02_home-microfono-muto.dc.html": {
+   "x": 880,
+   "y": 0,
+   "w": 800,
+   "h": 480,
+   "page": "mac",
+   "title": "02 · Home con il microfono muto"
+  },
+  "cm_03_comandi.dc.html": {
+   "x": 1760,
+   "y": 0,
+   "w": 800,
+   "h": 480,
+   "page": "mac",
+   "title": "03 · Comandi del Mac"
+  },
+  "cm_04_comandi-microfono-muto.dc.html": {
+   "x": 2640,
+   "y": 0,
+   "w": 800,
+   "h": 480,
+   "page": "mac",
+   "title": "04 · Microfono muto, Mac tenuto sveglio"
+  },
+  "cm_05_comandi-audio-muto-in-corso.dc.html": {
+   "x": 0,
+   "y": 560,
+   "w": 800,
+   "h": 480,
+   "page": "mac",
+   "title": "05 · Audio muto, comando in corso"
+  },
+  "cm_06_conferma-stop.dc.html": {
+   "x": 880,
+   "y": 560,
+   "w": 800,
+   "h": 480,
+   "page": "mac",
+   "title": "06 · Conferma prima dello stop"
+  },
+  "cm_07_conferma-schermo.dc.html": {
+   "x": 1760,
+   "y": 560,
+   "w": 800,
+   "h": 480,
+   "page": "mac",
+   "title": "07 · Conferma prima di spegnere lo schermo"
+  },
+  "cm_08_comando-non-riuscito.dc.html": {
+   "x": 2640,
+   "y": 560,
+   "w": 800,
+   "h": 480,
+   "page": "mac",
+   "title": "08 · Comando non riuscito"
+  },
+  "cm_09_mac-in-stop.dc.html": {
+   "x": 0,
+   "y": 1120,
+   "w": 800,
+   "h": 480,
+   "page": "mac",
+   "title": "09 · Mac appena messo in stop"
+  },
+  "cm_10_non-raggiungibile.dc.html": {
+   "x": 880,
+   "y": 1120,
+   "w": 800,
+   "h": 480,
+   "page": "mac",
+   "title": "10 · Mac non raggiungibile"
+  },
+  "cm_11_abbina-codice.dc.html": {
+   "x": 1760,
+   "y": 1120,
+   "w": 800,
+   "h": 480,
+   "page": "mac",
+   "title": "11 · Abbinamento: codice da scrivere sul Mac"
+  },
+  "cm_12_abbinata.dc.html": {
+   "x": 2640,
+   "y": 1120,
+   "w": 800,
+   "h": 480,
+   "page": "mac",
+   "title": "12 · Abbinamento riuscito"
+  },
+  "cm_13_programma-vecchio.dc.html": {
+   "x": 0,
+   "y": 1680,
+   "w": 800,
+   "h": 480,
+   "page": "mac",
+   "title": "13 · Programma del Mac da aggiornare"
+  },
+  "cm_14_stato.dc.html": {
+   "x": 880,
+   "y": 1680,
+   "w": 800,
+   "h": 480,
+   "page": "mac",
+   "title": "14 · Scheda Stato (intestazione nuova)"
+  },
+  "cm_15_impostazioni-abbina.dc.html": {
+   "x": 1760,
+   "y": 1680,
+   "w": 800,
+   "h": 480,
+   "page": "mac",
+   "title": "15 · Impostazioni, Mac da abbinare"
+  },
+  "cm_16_impostazioni-abbinata.dc.html": {
+   "x": 2640,
+   "y": 1680,
+   "w": 800,
+   "h": 480,
+   "page": "mac",
+   "title": "16 · Impostazioni, Mac abbinato"
+  },
+  "cm_17_abbina-di-nuovo.dc.html": {
+   "x": 0,
+   "y": 2240,
+   "w": 800,
+   "h": 480,
+   "page": "mac",
+   "title": "17 · Abbina di nuovo (da Impostazioni)"
   }
  },
  "order": [
@@ -982,7 +1122,24 @@
   "ct_14_meteo-altra-citta-domani.dc.html",
   "ct_15_home-predefinita.dc.html",
   "ct_16_home-senza-posizione.dc.html",
-  "ct_17_citta-senza-posizione.dc.html"
+  "ct_17_citta-senza-posizione.dc.html",
+  "cm_01_home.dc.html",
+  "cm_02_home-microfono-muto.dc.html",
+  "cm_03_comandi.dc.html",
+  "cm_04_comandi-microfono-muto.dc.html",
+  "cm_05_comandi-audio-muto-in-corso.dc.html",
+  "cm_06_conferma-stop.dc.html",
+  "cm_07_conferma-schermo.dc.html",
+  "cm_08_comando-non-riuscito.dc.html",
+  "cm_09_mac-in-stop.dc.html",
+  "cm_10_non-raggiungibile.dc.html",
+  "cm_11_abbina-codice.dc.html",
+  "cm_12_abbinata.dc.html",
+  "cm_13_programma-vecchio.dc.html",
+  "cm_14_stato.dc.html",
+  "cm_15_impostazioni-abbina.dc.html",
+  "cm_16_impostazioni-abbinata.dc.html",
+  "cm_17_abbina-di-nuovo.dc.html"
  ],
  "notes": {},
  "designSystems": []

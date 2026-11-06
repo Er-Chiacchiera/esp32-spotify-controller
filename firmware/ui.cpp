@@ -3,10 +3,12 @@
 #include <Arduino.h>
 #include <lvgl.h>
 #include <time.h>
+#include "computer.h"
 #include "net.h"
 #include "spotify.h"
 #include "lvgl_v8_port.h"
 #include "ui_common.h"
+#include "ui_computer.h"
 #include "ui_list.h"
 #include "ui_nav.h"
 #include "ui_player.h"
@@ -23,7 +25,7 @@ static lv_obj_t *portal_qr, *portal_net_label, *portal_pass_label;
 static lv_obj_t *saved_label;
 static lv_obj_t *update_label;
 static lv_obj_t *connecting_label, *connecting_hint;
-static lv_obj_t *home_time, *home_date, *home_wifi_dot;
+static lv_obj_t *home_time, *home_date, *home_wifi_dot, *home_mac, *home_mac_icon;
 static DeviceChip home_chip;
 // Riquadro Spotify della Home
 static lv_obj_t *sp_tile, *sp_title, *sp_sub, *sp_note, *sp_controls, *sp_play, *sp_play_icon, *sp_idle, *sp_skeleton;
@@ -159,6 +161,10 @@ static void create_home(lv_obj_t *scr)
   // Chip del dispositivo e icone Ascolti, Libreria, Cerca, Impostazioni (§3.1)
   home_chip.create(panel_home);
   ui_make_top_icons(panel_home, false, nullptr, &home_wifi_dot);
+  // Comandi del Mac a 472,0 (SPEC_CONTROLLO_MAC §4): solo con il Mac abbinato e raggiungibile, ed è anche la spia
+  home_mac = ui_make_icon_button(panel_home, 472, 0, IC_LAPTOP, COL_TEXT_2,
+                                 [](lv_event_t *e) { nav_open_view(view_computer(CT_COMMANDS)); }, nullptr, &home_mac_icon);
+  ui_set_hidden(home_mac, true);
 
   // Font nativo grande: niente transform_zoom, che con il Wi-Fi attivo faceva glitchare lo schermo.
   // y 79: il carattere ha la riga di 81 px (non 120), così le cifre stanno dove le mette il mockup (ora a 40,60)
@@ -304,6 +310,16 @@ static void update_home(const NetStatus &st, const SpotifyStatus &sp)
   home_chip.update(p);
   update_spotify_tile(wifi, sp, p);
   home_weather_update(true);
+  ComputerStatus c;
+  computer_get(&c);
+  const char *icon;
+  lv_color_t color;
+  bool mac = computer_home_button(c, &icon, &color);
+  ui_set_hidden(home_mac, !mac);
+  if (mac) {
+    ui_set_text_raw(home_mac_icon, icon);
+    ui_set_text_color(home_mac_icon, color);
+  }
 }
 
 void ui_open_home()

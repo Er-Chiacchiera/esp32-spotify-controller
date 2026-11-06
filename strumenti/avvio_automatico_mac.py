@@ -64,7 +64,8 @@ def main():
             "RunAtLoad": True,
             "KeepAlive": True,         # se si chiude (errore, rete assente) launchd lo riapre
             "ThrottleInterval": 30,
-            "ProcessType": "Background",
+            # "Standard": con "Background" macOS raggruppa i risvegli e le risposte ai comandi arrivavano dopo 2 s
+            "ProcessType": "Standard",
             "StandardOutPath": LOG,
             "StandardErrorPath": LOG,
         }, f)
