@@ -33,6 +33,7 @@ struct ComputerStatus {
   bool can_command;         // il programma sul Mac sa ricevere comandi
   bool paired;              // la scheda e questo Mac hanno la stessa chiave
   int8_t volume;            // volume del Mac 0-100, -1 se manca
+  int8_t light;             // luce dello schermo interno del Mac 0-100, -1 se manca (coperchio chiuso)
   bool out_muted, mic_muted, awake;
   char output[40], input[40];  // "MacBook Pro Speakers", "MacBook Pro Microphone"
   bool asleep;              // messo in stop dalla scheda e non ancora risvegliato

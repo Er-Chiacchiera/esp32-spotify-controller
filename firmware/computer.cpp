@@ -100,7 +100,7 @@ void computer_init()
 {
   mutex = xSemaphoreCreateMutex();
   memset(&status, 0, sizeof(status));
-  status.volume = -1;
+  status.volume = -1, status.light = -1;
   key_load();
 }
 
@@ -516,7 +516,7 @@ void computer_poll(bool connected)
       strlcpy(raw.name, "Computer di prova", sizeof(raw.name));
       raw.battery = 80, raw.power = PW_AC, raw.remaining_min = -1, raw.cpu = 20, raw.mem_free = 50;
       raw.disk_free_gb = 100, raw.disk_total_gb = 500, raw.uptime_s = 3600, raw.headphones_battery = -1;
-      raw.volume = -1;
+      raw.volume = -1, raw.light = -1;
     }
     raw.uptime_s += 5;
     publish(raw);
@@ -553,6 +553,7 @@ static void handle_packet()
   c.thermal = (doc["t"] | 0) != 0;
   strlcpy(c.headphones, doc["hn"] | "", sizeof(c.headphones));
   c.headphones_battery = doc["hb"] | -1;
+  c.light = doc["lu"] | -1;
   c.can_command = (doc["v"] | 1) >= 2;
   c.volume = -1;
   if (c.can_command) read_mac_values(c, doc);

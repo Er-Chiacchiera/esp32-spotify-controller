@@ -20,6 +20,7 @@ abbinamento i comandi si ignorano.
 """
 
 import argparse
+import ctypes
 import hashlib
 import hmac
 import json
@@ -120,6 +121,26 @@ def headphones():
     return (name, min(levels)) if name and levels else ("", -1)
 
 
+# ---------- Luce dello schermo ----------
+
+def screen_brightness():
+    """Luminosità dello schermo interno del Mac 0-100, -1 se non si legge (coperchio chiuso, Mac fisso).
+    DisplayServices è privato ma è quello che usa macOS stesso; gli schermi esterni non la danno."""
+    try:
+        cg = ctypes.CDLL("/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics")
+        ds = ctypes.CDLL("/System/Library/PrivateFrameworks/DisplayServices.framework/DisplayServices")
+        cg.CGDisplayIsBuiltin.restype = ctypes.c_bool
+        ids, n = (ctypes.c_uint32 * 8)(), ctypes.c_uint32()
+        cg.CGGetOnlineDisplayList(8, ids, ctypes.byref(n))
+        for d in ids[:n.value]:
+            level = ctypes.c_float()
+            if cg.CGDisplayIsBuiltin(d) and ds.DisplayServicesGetBrightness(d, ctypes.byref(level)) == 0:
+                return round(level.value * 100)
+    except (OSError, AttributeError):
+        pass
+    return -1
+
+
 # ---------- Audio ----------
 
 def osascript(script):
@@ -193,6 +214,7 @@ class Bridge:
         self.base = {}
         self.audio = (-1, False, -1)
         self.devices = ("", "")
+        self.light = -1
 
     def load_key(self):
         try:
@@ -209,9 +231,10 @@ class Bridge:
         return self.awake_proc is not None and self.awake_proc.poll() is None
 
     def audio_fields(self):
+        """Dati controllati ogni secondo (audio e luce dello schermo): un cambio va subito alla scheda"""
         vol, muted, mic = self.audio
         return {"vo": vol, "mu": int(muted), "mi": int(mic == 0), "aw": int(self.awake()),
-                "on": self.devices[0], "inn": self.devices[1]}
+                "on": self.devices[0], "inn": self.devices[1], "lu": self.light}
 
     def refresh_all(self):
         if time.time() - self.hp_at > HEADPHONES_EVERY_S:
@@ -225,6 +248,7 @@ class Bridge:
         }
         self.devices = audio_devices()
         self.audio = audio()
+        self.light = screen_brightness()
 
     def send_status(self):
         self.load_key()
@@ -335,6 +359,7 @@ class Bridge:
                     return
             elif now >= next_audio:
                 self.audio = audio()
+                self.light = screen_brightness()
                 if self.audio_fields() != sent_audio:  # cambiato dal Mac: la scheda lo vede subito
                     self.send_status()
                     sent_audio = self.audio_fields()

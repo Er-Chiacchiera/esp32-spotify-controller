@@ -76,6 +76,9 @@ static void send_screenshot()
 //   COMPUTER                                  stato del computer ricevuto da strumenti/ponte_computer.py
 //   COMPUTER PROVA <dato> <valore> | FINE     valori finti del computer, per le prove (computer.h)
 //   OTA_SET <password>                        password degli aggiornamenti via Wi-Fi (strumenti/aggiorna_wifi.py)
+//   LUCE                                      luce dello schermo e da dove viene
+static int full_brightness();
+static const char *light_source = "";
 static void handle_serial_line(String &line)
 {
   line.trim();
@@ -98,6 +101,8 @@ static void handle_serial_line(String &line)
     computer_serial(line.c_str() + 8);
   } else if (line == "METEO" || line.startsWith("METEO ")) {
     weather_serial(line.c_str() + 5);
+  } else if (line == "LUCE") {
+    Serial.printf("Luce piena: %d%% (%s)\n", full_brightness(), light_source);
   } else if (line.startsWith("OTA_SET ")) {
     Serial.println(net_set_ota_password(line.c_str() + 8) ? "OTA_OK" : "OTA_ERR password da 8 a 64 caratteri");
   } else if (line.startsWith("SPOTIFY_SET ")) {
@@ -245,13 +250,62 @@ void setup()
 static const uint32_t DIM_AFTER_MS = 2 * 60 * 1000, OFF_AFTER_MS = 12 * 60 * 1000;
 static const int BRIGHT_FULL = 100, BRIGHT_DIM = 15;
 
+// La luce "piena" segue lo schermo del Mac (che di solito si regola da solo sulla luce della stanza),
+// mai sotto il 10%. Senza il dato del Mac da più di un'ora: metà luce dal tramonto all'alba, piena di giorno.
+static const uint32_t MAC_LIGHT_KEEP_MS = 60 * 60 * 1000;
+static const int BRIGHT_MIN = 10, BRIGHT_NIGHT = 50;
+
+static int night_brightness()
+{
+  time_t now = time(nullptr);
+  if (now < 1700000000) return BRIGHT_FULL;  // ora non ancora arrivata
+  Weather *w = (Weather *)heap_caps_malloc(sizeof(Weather), MALLOC_CAP_SPIRAM);
+  if (!w) return BRIGHT_FULL;
+  weather_get(w);
+  int level = BRIGHT_FULL;
+  int di = w->valid ? weather_day_index(*w, now) : -1;
+  if (di >= 0 && w->days[di].sunrise >= 0 && w->days[di].sunset > w->days[di].sunrise) {
+    struct tm t;
+    localtime_r(&now, &t);
+    int m = t.tm_hour * 60 + t.tm_min;
+    if (m < w->days[di].sunrise || m >= w->days[di].sunset) level = BRIGHT_NIGHT;
+  }
+  heap_caps_free(w);
+  return level;
+}
+
+static int full_brightness()
+{
+  static int mac_light = -1, sun_level = BRIGHT_FULL;
+  static uint32_t mac_light_ms = 0, checked_ms = 0, sun_ms = 0;
+  static bool first = true;
+  if (first || millis() - checked_ms >= 1000) {
+    ComputerStatus *c = (ComputerStatus *)heap_caps_malloc(sizeof(ComputerStatus), MALLOC_CAP_SPIRAM);
+    if (c) {
+      computer_get(c);
+      if (computer_reachable(*c) && c->light >= 0) mac_light = c->light, mac_light_ms = millis();
+      heap_caps_free(c);
+    }
+    checked_ms = millis();
+  }
+  if (first || millis() - sun_ms >= 60 * 1000) sun_level = night_brightness(), sun_ms = millis();
+  first = false;
+  if (mac_light >= 0 && millis() - mac_light_ms < MAC_LIGHT_KEEP_MS) {
+    light_source = "dallo schermo del Mac";
+    return max(BRIGHT_MIN, (int)mac_light);
+  }
+  light_source = sun_level == BRIGHT_NIGHT ? "sera, senza Mac" : "giorno o meteo assente, senza Mac";
+  return sun_level;
+}
+
 static void update_backlight()
 {
   static int current = -1;
   Backlight *bl = board->getBacklight();
   if (!bl) return;
   uint32_t idle = millis() - lvgl_port_last_touch_ms();
-  int level = idle < DIM_AFTER_MS ? BRIGHT_FULL : (idle < OFF_AFTER_MS ? BRIGHT_DIM : 0);
+  int full = full_brightness();
+  int level = idle < DIM_AFTER_MS ? full : (idle < OFF_AFTER_MS ? min(BRIGHT_DIM, full) : 0);
   if (level == current) return;
   bl->setBrightness(level);
   lvgl_port_swallow_touch(level == 0);
